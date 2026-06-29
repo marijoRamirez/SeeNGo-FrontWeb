@@ -1,0 +1,72 @@
+<div class="page">
+
+  <div class="panel-left">
+    <div class="brand">
+      <div class="brand-icon">
+        <mat-icon>home</mat-icon>
+      </div>
+      <div>
+        <div class="brand-name">SeeNGo</div>
+        <div class="brand-tagline">Control de hogar inteligente</div>
+      </div>
+    </div>
+
+    <div class="panel-left-main">
+      <h1>Tu casa responde<br>con una seña.</h1>
+      <p>Monitorea, controla y automatiza tu hogar desde cualquier lugar del mundo.</p>
+    </div>
+
+    <div class="dots">
+      <span class="dot active"></span>
+      <span class="dot"></span>
+      <span class="dot"></span>
+    </div>
+  </div>
+
+  <div class="panel-right">
+    <div class="form-header">
+      <h2>Bienvenido de vuelta</h2>
+      <p>Entra para controlar tu hogar.</p>
+    </div>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+
+      <div class="field">
+        <label>Correo</label>
+        <input type="email" formControlName="email"
+               placeholder="maria.restrepo@correo.com">
+      </div>
+
+      <div class="field">
+        <label>Contraseña</label>
+        <input type="password" formControlName="password"
+               placeholder="••••••••••">
+      </div>
+
+      <div class="field-row">
+        <label class="check-label">
+          <input type="checkbox" formControlName="remember"> Recordarme
+        </label>
+        <a routerLink="/forgot-password" class="forgot">¿Olvidaste tu contraseña?</a>
+      </div>
+
+      <button type="submit" class="btn-main" [disabled]="loginForm.invalid">
+        Iniciar sesión
+      </button>
+
+    </form>
+
+    <div class="divider"><span>o continúa con</span></div>
+
+    <div class="social-row">
+      <button type="button" class="btn-social" (click)="loginWithGoogle()">
+        Google
+      </button>
+    </div>
+
+    <div class="register">
+      ¿Aún no tienes cuenta? <a routerLink="/register">Crear cuenta</a>
+    </div>
+  </div>
+
+</div>
