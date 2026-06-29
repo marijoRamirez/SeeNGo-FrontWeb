@@ -1,0 +1,12 @@
+<aside class="sidebar">
+  <nav class="sidebar-nav">
+    @for (link of links; track link.route) {
+      <a [routerLink]="link.route"
+         routerLinkActive="active"
+         class="sidebar-link">
+        <span class="material-icons">{{ link.icon }}</span>
+        <span>{{ link.label }}</span>
+      </a>
+    }
+  </nav>
+</aside>
