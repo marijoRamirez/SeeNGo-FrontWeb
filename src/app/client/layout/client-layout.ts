@@ -14,5 +14,6 @@ export class ClientLayout {
     { route: '/client/documentation', label: 'Documentación', icon: 'description' },
     { route: '/client/purchases', label: 'Mis dispositivos', icon: 'shopping_bag' },
     { route: '/client/profile', label: 'Mi perfil', icon: 'person' },
+    { route: '/src/app/public/landing/landing.html', label: 'Cerrar sesión', icon: 'logout' },
   ];
 }
