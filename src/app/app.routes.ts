@@ -13,7 +13,6 @@ import { Users } from './admin/users/users';
 
 import { ClientLayout } from './client/layout/client-layout';
 import { Dashboard as ClientDashboard } from './client/dashboard/dashboard';
-import { Documentation } from './client/documentation/documentation';
 import { Profile } from './client/profile/profile';
 import { Purchases } from './client/purchases/purchases';
 
@@ -40,7 +39,6 @@ export const routes: Routes = [
     component: ClientLayout,
     children: [
       { path: 'dashboard', component: ClientDashboard },
-      { path: 'documentation', component: Documentation },
       { path: 'profile', component: Profile },
       { path: 'purchases', component: Purchases },
       { path: '**', redirectTo: 'dashboard' },
