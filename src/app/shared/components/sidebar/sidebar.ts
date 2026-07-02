@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 
 export interface SidebarLink {
@@ -15,4 +15,11 @@ export interface SidebarLink {
 })
 export class Sidebar {
   @Input() links: SidebarLink[] = [];
+  @Input() collapsed: boolean = false;
+  @Output() collapsedChange = new EventEmitter<boolean>();
+
+  toggle() {
+    this.collapsed = !this.collapsed;
+    this.collapsedChange.emit(this.collapsed);
+  }
 }

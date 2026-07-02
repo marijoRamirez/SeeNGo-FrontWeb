@@ -9,9 +9,11 @@ import { Sidebar, SidebarLink } from '../../shared/components/sidebar/sidebar';
   styleUrl: './client-layout.scss',
 })
 export class ClientLayout {
+  sidebarCollapsed: boolean = false;
+
   links: SidebarLink[] = [
     { route: '/client/profile', label: 'Mi perfil', icon: 'person' },
     { route: '/client/purchases', label: 'Mis compras', icon: 'shopping_cart' },
-    { route: '/src/app/public/landing/landing.html', label: 'Regresar', icon: 'logout' },
+    { route: '/', label: 'Regresar', icon: 'logout' },
   ];
 }

@@ -1,11 +1,29 @@
-<aside class="sidebar">
+<aside class="sidebar" [class.collapsed]="collapsed">
+  <div class="sidebar-header">
+    <div class="sidebar-brand">
+      <div class="brand-icon">S</div>
+      @if (!collapsed) {
+        <div class="brand-text">
+          <span class="brand-name">SeeNGo</span>
+          <span class="brand-role">Mi hogar</span>
+        </div>
+      }
+    </div>
+    <button class="toggle-btn" (click)="toggle()" [attr.title]="collapsed ? 'Abrir menú' : 'Cerrar menú'">
+      <span class="material-icons">{{ collapsed ? 'menu_open' : 'chevron_left' }}</span>
+    </button>
+  </div>
+
   <nav class="sidebar-nav">
     @for (link of links; track link.route) {
       <a [routerLink]="link.route"
          routerLinkActive="active"
-         class="sidebar-link">
+         class="sidebar-link"
+         [class.justify-icon]="collapsed">
         <span class="material-icons">{{ link.icon }}</span>
-        <span>{{ link.label }}</span>
+        @if (!collapsed) {
+          <span>{{ link.label }}</span>
+        }
       </a>
     }
   </nav>
