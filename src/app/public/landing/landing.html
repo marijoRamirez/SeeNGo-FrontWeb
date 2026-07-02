@@ -17,7 +17,24 @@
         <a href="#" class="nav-link">Contacto</a>
       </nav>
       <div class="header-actions">
-        <a href="/login" class="btn-outline">Iniciar sesión</a>
+        @if (!isLogged) {
+          <a href="/login" class="btn-outline">Iniciar sesión</a>
+        } @else {
+          <div class="user-menu-container">
+            <button (click)="toggleMenu()" class="btn-outline">Mi perfil</button>
+
+             @if(showUserMenu){
+              <div class="dropdown-menu">
+                <a href="/client/profile">Mi perfil</a>
+                <a href="/client/purchases">Mis compras</a>
+
+                <hr>
+                <button (click)="logout()" class="dropdown-item">Cerrar sesión</button>
+
+              </div>
+             }
+          </div>
+        }
       </div>
     </div>
   </header>
@@ -30,7 +47,11 @@
         Sin controles, sin apps complicadas. Solo tú y tus manos.
       </p>
       <div class="hero-actions">
-        <a href="/login" class="btn-primary btn-lg">Comenzar ahora</a>
+        @if(!isLogged) {
+          <a href="/login" class="btn-primary btn-lg">Comenzar ahora</a>
+        } @else {
+          <a href="/client/profile" class="btn-primary btn-lg">Ir al panel</a>
+        }
       </div>
     </div>
     <div class="hero-visual">

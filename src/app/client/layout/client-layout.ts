@@ -10,8 +10,8 @@ import { Sidebar, SidebarLink } from '../../shared/components/sidebar/sidebar';
 })
 export class ClientLayout {
   links: SidebarLink[] = [
-    { route: '/client/dashboard', label: 'Dashboard', icon: 'dashboard' },
     { route: '/client/profile', label: 'Mi perfil', icon: 'person' },
-    { route: '/src/app/public/landing/landing.html', label: 'Cerrar sesión', icon: 'logout' },
+    { route: '/client/purchases', label: 'Mis compras', icon: 'shopping_cart' },
+    { route: '/src/app/public/landing/landing.html', label: 'Regresar', icon: 'logout' },
   ];
 }
