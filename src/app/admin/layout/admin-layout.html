@@ -1,17 +1,10 @@
 <div class="page-dashboard">
-  <header class="header">
-    <div class="header-inner">
-      <div class="brand">
-        <div class="brand-text">
-          <span class="brand-name">SeeNGo</span>
-          <span class="brand-role">Administrador</span>
-        </div>
-      </div>
-    </div>
-  </header>
+  @if (!sidebarCollapsed) {
+    <div class="sidebar-backdrop" (click)="sidebarCollapsed = true"></div>
+  }
   <main class="main">
-    <app-sidebar [links]="links" />
-    <div class="dashboard-content">
+    <app-sidebar [links]="links" [(collapsed)]="sidebarCollapsed" />
+    <div class="dashboard-content" [class.expanded]="sidebarCollapsed">
       <router-outlet />
     </div>
   </main>

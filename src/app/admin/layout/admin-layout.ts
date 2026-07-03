@@ -9,6 +9,7 @@ import { Sidebar, SidebarLink } from '../../shared/components/sidebar/sidebar';
   styleUrl: './admin-layout.scss',
 })
 export class AdminLayout {
+  sidebarCollapsed: boolean = false;
   links: SidebarLink[] = [
     { route: '/admin/dashboard', label: 'Dashboard', icon: 'dashboard' },
     { route: '/admin/analytics', label: 'Analytics', icon: 'analytics' },
