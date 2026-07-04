@@ -1,5 +1,5 @@
-import { Component, HostListener, Inject, PLATFORM_ID } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
+import { Component, HostListener, inject } from '@angular/core';
+import { AuthService } from '../../core/services/auth';
 
 @Component({
   selector: 'app-landing',
@@ -8,16 +8,15 @@ import { isPlatformBrowser } from '@angular/common';
   styleUrl: './landing.scss',
 })
 export class Landing {
+  private auth = inject(AuthService);
+
   isLogged: boolean = false;
   showUserMenu: boolean = false;
 
-  constructor(@Inject(PLATFORM_ID) private platformId: object) {}
-
   ngOnInit() {
-    if (isPlatformBrowser(this.platformId)) {
-      const token = localStorage.getItem('token');
-      this.isLogged = !!token;
-    }
+    this.auth.isLoggedIn$.subscribe(logged => {
+      this.isLogged = logged;
+    });
   }
 
   toggleMenu() {
@@ -33,9 +32,7 @@ export class Landing {
   }
 
   logout() {
-    localStorage.removeItem('token');
-    this.isLogged = false;
+    this.auth.logout();
     this.showUserMenu = false;
   }
-
 }
