@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
-import { ApiService, LoginResponse } from './api';
+import { ApiService, LoginResponse, RegisterResponse } from './api';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -14,13 +14,23 @@ export class AuthService {
   private userSubject = new BehaviorSubject<{ id: string; name: string; email: string; role: string } | null>(this.getStoredUser());
   user$ = this.userSubject.asObservable();
 
+  register(name: string, email: string, password: string): Observable<RegisterResponse> {
+    return this.api.register(name, email, password);
+  }
+
   login(email: string, password: string): Observable<LoginResponse> {
     return this.api.login(email, password).pipe(
       tap(res => {
+        const user = {
+          id: String(res.user.id),
+          name: res.user.name,
+          email: res.user.email,
+          role: res.user.role
+        };
         localStorage.setItem('token', res.token);
-        localStorage.setItem('user', JSON.stringify(res.user));
+        localStorage.setItem('user', JSON.stringify(user));
         this.loggedInSubject.next(true);
-        this.userSubject.next(res.user);
+        this.userSubject.next(user);
       })
     );
   }

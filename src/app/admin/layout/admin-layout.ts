@@ -14,5 +14,6 @@ export class AdminLayout {
     { route: '/admin/dashboard', label: 'Dashboard', icon: 'dashboard' },
     { route: '/admin/analytics', label: 'Analytics', icon: 'analytics' },
     { route: '/admin/raspberry-monitor', label: 'Monitor Raspberry', icon: 'monitor_heart' },
+     { route: '/', label: 'Regresar', icon: 'logout' }
   ];
 }

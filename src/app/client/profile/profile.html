@@ -1,20 +1,100 @@
 <div class="profile-container">
-  <h1>Mi Perfil</h1>
 
-  <div class="profile-card">
-    <div class="profile-image">
-      <img src="assets/profile-picture.jpg" alt="Foto de perfil">
-    </div>
-    <div class="profile-details">
-      <p><strong>Nombre:</strong> {{ name }}</p>
-      <p><strong>Email:</strong> {{ email }}</p>
-      <p><strong>Teléfono:</strong> {{ phone || 'No registrado' }}</p>
-    </div>
+  @if (isLoading) {
+    <p class="loading">Cargando perfil...</p>
+  } @else if (errorMessage && !isEditing) {
+    <p class="error-msg">{{ errorMessage }}</p>
+  } @else {
 
-    <div class="profile-actions">
-      <button class="edit-button">Editar Perfil</button>
-      <button class="logout-button" (click)="auth.logout()">Cerrar Sesión</button>
-      <button class="delete-button">Eliminar Cuenta</button>
-    </div>
-  </div>
+    <h1>Mi Perfil</h1>
+
+    @if (successMessage) {
+      <p class="success-msg">{{ successMessage }}</p>
+    }
+
+    @if (errorMessage && isEditing) {
+      <p class="error-msg">{{ errorMessage }}</p>
+    }
+
+    @if (!isEditing) {
+
+      <div class="profile-card">
+        <div class="profile-image">
+          <img src="assets/profile-picture.jpg" alt="Foto de perfil">
+        </div>
+        <div class="profile-details">
+          <p><strong>Nombre:</strong> {{ name }}</p>
+          <p><strong>Email:</strong> {{ email }}</p>
+          <p><strong>Teléfono:</strong> {{ phone || 'No registrado' }}</p>
+        </div>
+
+        <div class="profile-actions">
+          <button class="edit-button" (click)="toggleEdit()">Editar Perfil</button>
+          <button class="logout-button" (click)="auth.logout()">Cerrar Sesión</button>
+          <button class="delete-button" (click)="requestDeleteConfirmation()">Eliminar Cuenta</button>
+        </div>
+      </div>
+
+    } @else {
+
+      <div class="profile-card">
+        <h2 class="edit-title">Editar Perfil</h2>
+
+        <form [formGroup]="editForm" class="edit-form">
+
+          <div class="field">
+            <label>Nombre</label>
+            <input type="text" formControlName="name"
+                   placeholder="Tu nombre">
+          </div>
+
+          <div class="field">
+            <label>Teléfono</label>
+            <input type="tel" formControlName="phone"
+                   placeholder="+52 555 123 4567">
+          </div>
+
+          <div class="field">
+            <label>Correo</label>
+            <input type="email" formControlName="email"
+                   class="disabled-input" readonly>
+          </div>
+
+          <div class="edit-actions">
+            <button type="submit" class="save-button" (click)="saveProfile()" [disabled]="editForm.invalid || isSaving">
+              @if (isSaving) {
+                Guardando...
+              } @else {
+                Guardar Cambios
+              }
+            </button>
+            <button type="button" class="cancel-button" (click)="cancelEdit()">Cancelar</button>
+          </div>
+
+        </form>
+      </div>
+
+    }
+
+    @if (showDeleteConfirm) {
+      <div class="modal-overlay" (click)="cancelDelete()">
+        <div class="delete-confirm" (click)="$event.stopPropagation()">
+          <h3>¿Eliminar cuenta?</h3>
+          <p>Esta acción es irreversible. Todos tus datos serán eliminados permanentemente.</p>
+          <div class="delete-confirm-actions">
+            <button class="confirm-delete-button" (click)="confirmDelete()" [disabled]="isDeleting">
+              @if (isDeleting) {
+                Eliminando...
+              } @else {
+                Sí, eliminar mi cuenta
+              }
+            </button>
+            <button class="cancel-delete-button" (click)="cancelDelete()">Cancelar</button>
+          </div>
+        </div>
+      </div>
+    }
+
+  }
+
 </div>

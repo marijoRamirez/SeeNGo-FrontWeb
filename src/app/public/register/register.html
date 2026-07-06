@@ -1,0 +1,89 @@
+<div class="page">
+
+  <div class="panel-left">
+    <div class="brand">
+      <div class="brand-icon">
+        <mat-icon>home</mat-icon>
+      </div>
+      <div>
+        <div class="brand-name">SeeNGo</div>
+        <div class="brand-tagline">Control de hogar inteligente</div>
+      </div>
+    </div>
+
+    <div class="panel-left-main">
+      <h1>Tu casa responde<br>con una seña.</h1>
+      <p>Monitorea, controla y automatiza tu hogar desde cualquier lugar del mundo.</p>
+    </div>
+
+    <div class="dots">
+      <span class="dot active"></span>
+      <span class="dot"></span>
+      <span class="dot"></span>
+    </div>
+  </div>
+
+  <div class="panel-right">
+    <div class="form-header">
+      <h2>Crear cuenta</h2>
+      <p>Regístrate para controlar tu hogar.</p>
+    </div>
+
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+
+      <div class="field">
+        <label>Nombre</label>
+        <input type="text" formControlName="name"
+               placeholder="Tu nombre">
+      </div>
+
+      <div class="field">
+        <label>Correo</label>
+        <input type="email" formControlName="email"
+               placeholder="tucorreo@correo.com">
+      </div>
+
+      <div class="field">
+        <label>Contraseña</label>
+        <input type="password" formControlName="password"
+               placeholder="••••••••••">
+      </div>
+
+      <div class="field">
+        <label>Confirmar contraseña</label>
+        <input type="password" formControlName="confirmPassword"
+               placeholder="••••••••••">
+      </div>
+
+      @if (registerForm.errors?.['mismatch'] && registerForm.get('confirmPassword')?.touched) {
+        <div class="error-msg">Las contraseñas no coinciden.</div>
+      }
+
+      @if (errorMessage) {
+        <div class="error-msg">{{ errorMessage }}</div>
+      }
+
+      @if (successMessage) {
+        <div class="success-msg">{{ successMessage }}</div>
+      }
+
+      <button type="submit" class="btn-main" [disabled]="registerForm.invalid">
+        Crear cuenta
+      </button>
+
+    </form>
+
+    <div class="divider"><span>o continúa con</span></div>
+
+    <div class="social-row">
+      <button type="button" class="btn-social">
+        Google
+      </button>
+    </div>
+
+    <div class="register">
+      ¿Ya tienes cuenta? <a routerLink="/login">Iniciar sesión</a>
+    </div>
+  </div>
+
+</div>

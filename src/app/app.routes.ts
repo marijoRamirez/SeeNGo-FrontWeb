@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 
 import { Landing } from './public/landing/landing';
 import { Login } from './public/login/login';
+import { Register } from './public/register/register';
 
 import { AdminLayout } from './admin/layout/admin-layout';
 import { Dashboard as AdminDashboard } from './admin/dashboard/dashboard';
@@ -18,6 +19,7 @@ import { Purchases } from './client/purchases/purchases';
 export const routes: Routes = [
   { path: '', component: Landing },
   { path: 'login', component: Login },
+  { path: 'register', component: Register },
 
   {
     path: 'admin',
