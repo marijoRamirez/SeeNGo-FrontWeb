@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, PLATFORM_ID } from '@angular/core';
+import { Component, OnInit, inject, PLATFORM_ID, ChangeDetectorRef } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
@@ -16,6 +16,8 @@ import { take } from 'rxjs';
 })
 export class Profile implements OnInit {
   private api = inject(ApiService);
+  private plataformId = inject(PLATFORM_ID);
+  private cdr = inject(ChangeDetectorRef);
   protected auth = inject(AuthService);
   private router = inject(Router);
   private platformId = inject(PLATFORM_ID);
@@ -67,6 +69,8 @@ export class Profile implements OnInit {
         this.role = user.role;
         this.createdAt = user.createdAt;
         this.isLoading = false;
+
+        this.cdr.detectChanges();
       },
       error: (error) => {
         console.error('Error al cargar el perfil:', error);
@@ -78,6 +82,7 @@ export class Profile implements OnInit {
         } else {
           this.errorMessage = 'Ocurrió un error inesperado al cargar tu perfil.';
         }
+        this.cdr.detectChanges();
       }
     });
   }

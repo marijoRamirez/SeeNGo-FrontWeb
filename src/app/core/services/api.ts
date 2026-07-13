@@ -58,14 +58,14 @@ export class ApiService {
   }
 
   getMyProfile(id: string): Observable<UserProfile> {
-    return this.http.get<UserProfile>(`${this.baseUrl}/users/profile`);
+    return this.http.get<UserProfile>(`${this.baseUrl}/users/${id}`, { headers: this.authHeaders() });
   }
 
   updateProfile(id: string, data: { name: string; phone?: string | null }): Observable<{ message: string }> {
-    return this.http.put<{ message: string }>(`${this.baseUrl}/users/${id}`, data);
+    return this.http.put<{ message: string }>(`${this.baseUrl}/users/${id}`, data, { headers: this.authHeaders() });
   }
 
   deleteAccount(id: string): Observable<{ message: string }> {
-    return this.http.delete<{ message: string }>(`${this.baseUrl}/users/${id}`);
+    return this.http.delete<{ message: string }>(`${this.baseUrl}/users/${id}`, { headers: this.authHeaders() });
   }
 }
