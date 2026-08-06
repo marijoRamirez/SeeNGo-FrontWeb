@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://seengo-backend-production.up.railway.app/api'
+  apiUrl: 'http://localhost:5077/api',
 };

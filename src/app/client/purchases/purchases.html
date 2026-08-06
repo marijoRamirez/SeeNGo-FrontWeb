@@ -1,50 +1,125 @@
-<div class="welcome-section">
-  <div>
-    <h1>Mis Dispositivos</h1>
-    <p class="welcome-sub">Revisa a detalle tus dispositivos!</p>
-  </div>
-
-  <div class = "rasperry-info">
-    <div class = "rasperry-card">
-      <div class="device-header">
-        <span class="status-badge active"></span>
-      </div>
-      <h3>Sala principal</h3>
-      <p class="device-type">Foco inteligente</p>
-      <span class="device-status active">Activo</span>
-
-      <div class="support-info">
-        <p>¿Necesitas ayuda con este dispositivo? Contacta con soporte.</p>
-        <p>Número de contacto: 123-456-7890</p>
-      </div>
-    </div>
-    <div class = "rasperry-card">
-      <div class="device-header">
-        <span class="status-badge inactive"></span>
-      </div>
-      <h3>Dispositivo 2</h3>
-      <p class="device-type">Foco inteligente</p>
-      <span class="device-status inactive">Inactivo</span>
-
-
-      <div class="support-info">
-        <p>¿Necesitas ayuda con este dispositivo? Contacta con soporte.</p>
-        <p>Número de contacto: 123-456-7890</p>
-      </div>
-    </div>
-    <div class = "rasperry-card">
-      <div class="device-header">
-        <span class="status-badge inactive"></span>
-      </div>
-      <h3>Dispositivo 3</h3>
-      <p class="device-type">Foco inteligente</p>
-      <span class="device-status inactive">Inactivo</span>
-
-      <div class="support-info">
-        <p>¿Necesitas ayuda con este dispositivo? Contacta con soporte.</p>
-        <p>Número de contacto: 123-456-7890</p>
-      </div>
-    </div>
-  </div>
+<div class="purchases-header">
+  <h1>Mis compras</h1>
+  <p class="purchases-sub">Historial de tus pedidos, guías de uso y opiniones.</p>
 </div>
 
+@if (cargando()) {
+  <div class="purchase-list" aria-hidden="true">
+    @for (i of skeletons; track i) {
+      <div class="purchase-card is-skeleton">
+        <div class="skeleton-line shimmer"></div>
+        <div class="skeleton-line short shimmer"></div>
+      </div>
+    }
+  </div>
+} @else if (error()) {
+  <div class="state-block" role="alert">
+    <span class="material-icons">error_outline</span>
+    <p>{{ error() }}</p>
+    <button type="button" class="btn-secondary" (click)="cargarVentas()">Reintentar</button>
+  </div>
+} @else if (ventas().length === 0) {
+  <div class="state-block">
+    <span class="material-icons">shopping_bag</span>
+    <h2>Aún no tienes compras</h2>
+    <p>Cuando realices tu primer pedido aparecerá aquí.</p>
+    <a routerLink="/client/store" class="btn-primary">Ir a la tienda</a>
+  </div>
+} @else {
+  <div class="purchase-list">
+    @for (venta of ventas(); track venta.id) {
+      <article class="purchase-card">
+        <header class="purchase-head">
+          <div class="purchase-head-info">
+            <span class="purchase-ref">Orden #{{ venta.id.slice(-6) | uppercase }}</span>
+            <span class="purchase-date">{{ venta.fechaVenta | date:'d MMM y, h:mm a' }}</span>
+          </div>
+          <span class="purchase-total">{{ venta.total | currency:'MXN':'symbol-narrow' }}</span>
+        </header>
+        <ul class="purchase-items">
+          @for (item of venta.items; track item.productoId) {
+            <li class="purchase-item">
+              <div class="item-row">
+                <span class="item-name">{{ item.nombreProducto }}</span>
+                <span class="item-qty">× {{ item.cantidad }}</span>
+                <span class="item-subtotal">
+                  {{ item.cantidad * item.precioUnitario | currency:'MXN':'symbol-narrow' }}
+                </span>
+              </div>
+              <div class="item-extras">
+                @for (documento of documentosDe(item.productoId); track documento.url) {
+                  <a class="doc-link" [href]="documento.url" target="_blank" rel="noopener">
+                    <span class="material-icons">description</span>
+                    {{ documento.titulo }}
+                  </a>
+                }
+                <button type="button" class="opinar-btn" (click)="abrirResena(item.productoId, item.nombreProducto)">
+                  <span class="material-icons">rate_review</span>
+                  Dejar opinión
+                </button>
+              </div>
+            </li>
+          }
+        </ul>
+      </article>
+    }
+  </div>
+}
+
+@if (resenaProducto(); as producto) {
+  <div class="modal-overlay" (click)="cerrarResena()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      @if (resenaEnviada()) {
+        <div class="resena-exito">
+          <span class="material-icons">check_circle</span>
+          <h2>¡Gracias por tu opinión!</h2>
+          <p>Tu reseña sobre "{{ producto.nombre }}" quedó registrada.</p>
+          <button type="button" class="btn-primary" (click)="cerrarResena()">Cerrar</button>
+        </div>
+      } @else {
+        <h2>Tu opinión sobre {{ producto.nombre }}</h2>
+
+        <div class="stars-input" role="radiogroup" aria-label="Calificación">
+          @for (estrella of estrellas; track estrella) {
+            <button
+              type="button"
+              class="star-btn"
+              role="radio"
+              [attr.aria-checked]="calificacion() === estrella"
+              [attr.aria-label]="estrella + ' estrellas'"
+              (click)="calificacion.set(estrella)">
+              <span class="material-icons" [class.is-filled]="estrella <= calificacion()">
+                {{ estrella <= calificacion() ? 'star' : 'star_border' }}
+              </span>
+            </button>
+          }
+        </div>
+
+        <div class="field">
+          <label for="resena-comentario">Comentario</label>
+          <textarea
+            id="resena-comentario"
+            rows="4"
+            [value]="comentario()"
+            (input)="comentario.set($any($event.target).value)"
+            placeholder="¿Qué te ha parecido el producto?"></textarea>
+        </div>
+
+        @if (errorResena()) {
+          <p class="banner-error" role="alert">{{ errorResena() }}</p>
+        }
+
+        <div class="modal-actions">
+          <button type="button" class="btn-primary" [disabled]="enviandoResena()" (click)="enviarResena()">
+            @if (enviandoResena()) {
+              Enviando…
+            } @else {
+              Publicar opinión
+            }
+          </button>
+          <button type="button" class="btn-secondary" [disabled]="enviandoResena()" (click)="cerrarResena()">Cancelar</button>
+        </div>
+      }
+    </div>
+  </div>
+}

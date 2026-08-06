@@ -1,0 +1,19 @@
+@use '../admin-shared' as shared;
+
+@include shared.admin-base;
+
+.cell-nombre {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 180px;
+
+  span:first-child {
+    font-weight: 500;
+  }
+}
+
+.cell-sub {
+  font-size: 12.5px;
+  color: shared.$muted;
+}

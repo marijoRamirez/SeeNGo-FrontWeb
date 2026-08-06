@@ -43,6 +43,17 @@ export class Profile implements OnInit {
   showDeleteConfirm = false;
   isDeleting = false;
 
+  showPasswordForm = false;
+  isChangingPassword = false;
+  passwordSuccess: string | null = null;
+  passwordError: string | null = null;
+
+  passwordForm = new FormGroup({
+    actual: new FormControl('', [Validators.required]),
+    nueva: new FormControl('', [Validators.required, Validators.minLength(6)]),
+    confirmar: new FormControl('', [Validators.required]),
+  });
+
   private userId: string | null = null;
 
   ngOnInit() {
@@ -128,6 +139,45 @@ export class Profile implements OnInit {
     this.errorMessage = null;
   }
 
+  togglePasswordForm() {
+    this.showPasswordForm = !this.showPasswordForm;
+    this.passwordSuccess = null;
+    this.passwordError = null;
+    this.passwordForm.reset({ actual: '', nueva: '', confirmar: '' });
+  }
+
+  changePassword() {
+    if (this.passwordForm.invalid) {
+      this.passwordForm.markAllAsTouched();
+      return;
+    }
+
+    const { actual, nueva, confirmar } = this.passwordForm.getRawValue();
+    if (nueva !== confirmar) {
+      this.passwordError = 'La confirmación no coincide con la nueva contraseña.';
+      return;
+    }
+
+    this.isChangingPassword = true;
+    this.passwordError = null;
+    this.passwordSuccess = null;
+
+    this.api.cambiarPassword({ currentPassword: actual!, newPassword: nueva! }).subscribe({
+      next: () => {
+        this.isChangingPassword = false;
+        this.passwordSuccess = 'Contraseña actualizada correctamente.';
+        this.showPasswordForm = false;
+        this.passwordForm.reset({ actual: '', nueva: '', confirmar: '' });
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        this.isChangingPassword = false;
+        this.passwordError = error?.error?.message ?? 'No se pudo cambiar la contraseña.';
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
   requestDeleteConfirmation() {
     this.showDeleteConfirm = true;
   }
@@ -141,7 +191,7 @@ export class Profile implements OnInit {
     this.isDeleting = true;
     this.errorMessage = null;
 
-    this.api.deleteAccount(this.userId).subscribe({
+    this.api.deleteAccount().subscribe({
       next: () => {
         this.auth.logout();
       },

@@ -1,55 +1,51 @@
-.welcome-section {
-  h1 {
-    font-size: 26px;
-    font-weight: 500;
-    margin: 0 0 4px;
-  }
-}
+@use '../admin-shared' as shared;
 
-.welcome-sub {
-  font-size: 15px;
-  color: #888;
-  margin: 0 0 2rem;
-}
+@include shared.admin-base;
 
-.user-info {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1.25rem;
-}
+.creado-exito {
+  text-align: center;
 
-.user-card {
-  background: #fff;
-  border: 1px solid #e8ece8;
-  border-radius: 16px;
-  padding: 1.5rem;
-  transition: all 0.25s;
-
-  &:hover {
-    border-color: #d4e8c2;
-    box-shadow: 0 8px 24px rgba(30, 38, 36, 0.06);
-    transform: translateY(-2px);
+  .material-icons {
+    font-size: 44px;
+    color: #2e7d32;
+    margin-bottom: 0.5rem;
   }
 
   h2 {
-    font-size: 16px;
-    font-weight: 500;
-    margin: 0 0 0.5rem;
-    color: #1e2624;
-  }
-
-  p {
-    font-size: 14px;
-    color: #888;
-    margin: 0;
-    line-height: 1.5;
+    margin-bottom: 0.5rem;
   }
 }
 
-@media (max-width: 768px) {
-  .welcome-section {
-    h1 {
-      font-size: 22px;
-    }
+.accesos {
+  text-align: left;
+  background: #f8faf7;
+  border: 1px solid shared.$card-border;
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+
+  dt {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: shared.$muted;
+    margin-bottom: 2px;
   }
+
+  dd {
+    margin: 0;
+    font-size: 14px;
+    color: shared.$ink;
+  }
+}
+
+.password-temporal {
+  font-family: 'Courier New', monospace;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
 }

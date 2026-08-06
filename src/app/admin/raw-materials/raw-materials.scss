@@ -1,0 +1,19 @@
+@use '../admin-shared' as shared;
+
+@include shared.admin-base;
+
+.td-nombre {
+  font-weight: 500;
+  min-width: 160px;
+}
+
+.nota-costeo {
+  font-size: 13px;
+  color: shared.$muted;
+  background: #f8faf7;
+  border: 1px solid shared.$card-border;
+  border-radius: 8px;
+  padding: 10px 12px;
+  line-height: 1.5;
+  margin: 0 0 1rem;
+}

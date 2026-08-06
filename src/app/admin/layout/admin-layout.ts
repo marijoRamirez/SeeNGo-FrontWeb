@@ -12,8 +12,14 @@ export class AdminLayout {
   sidebarCollapsed: boolean = false;
   links: SidebarLink[] = [
     { route: '/admin/dashboard', label: 'Dashboard', icon: 'dashboard' },
-    { route: '/admin/analytics', label: 'Analytics', icon: 'analytics' },
+    { route: '/admin/users', label: 'Usuarios', icon: 'group' },
+    { route: '/admin/products', label: 'Productos', icon: 'inventory_2' },
+    { route: '/admin/production', label: 'Producción', icon: 'precision_manufacturing' },
+    { route: '/admin/raw-materials', label: 'Materia prima', icon: 'category' },
+    { route: '/admin/suppliers', label: 'Proveedores', icon: 'local_shipping' },
+    { route: '/admin/supplier-purchases', label: 'Compras', icon: 'shopping_basket' },
+    { route: '/admin/comments', label: 'Comentarios', icon: 'rate_review' },
     { route: '/admin/raspberry-monitor', label: 'Monitor Raspberry', icon: 'monitor_heart' },
-     { route: '/', label: 'Regresar', icon: 'logout' }
+    { route: '/', label: 'Regresar', icon: 'logout' }
   ];
 }
