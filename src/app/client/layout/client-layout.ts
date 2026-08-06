@@ -12,8 +12,9 @@ export class ClientLayout {
   sidebarCollapsed: boolean = false;
 
   links: SidebarLink[] = [
+    { route: '/client/store', label: 'Tienda', icon: 'storefront' },
+    { route: '/client/purchases', label: 'Mis compras', icon: 'receipt_long' },
     { route: '/client/profile', label: 'Mi perfil', icon: 'person' },
-    { route: '/client/purchases', label: 'Mis compras', icon: 'shopping_cart' },
     { route: '/', label: 'Regresar', icon: 'logout' },
   ];
 }

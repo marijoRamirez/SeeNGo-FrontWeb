@@ -1,0 +1,140 @@
+<div class="page-header">
+  <div>
+    <h1>Comentarios</h1>
+    <p class="page-sub">Reseñas de productos y mensajes del formulario de contacto.</p>
+  </div>
+</div>
+
+<div class="tabs" role="tablist">
+  <button
+    type="button"
+    role="tab"
+    class="tab"
+    [class.is-active]="pestana() === 'resenas'"
+    [attr.aria-selected]="pestana() === 'resenas'"
+    (click)="pestana.set('resenas')">
+    Reseñas
+    @if (pendientesResenas() > 0) {
+      <span class="tab-count">{{ pendientesResenas() }}</span>
+    }
+  </button>
+  <button
+    type="button"
+    role="tab"
+    class="tab"
+    [class.is-active]="pestana() === 'mensajes'"
+    [attr.aria-selected]="pestana() === 'mensajes'"
+    (click)="pestana.set('mensajes')">
+    Mensajes de contacto
+    @if (pendientesMensajes() > 0) {
+      <span class="tab-count">{{ pendientesMensajes() }}</span>
+    }
+  </button>
+</div>
+
+@if (errorAccion()) {
+  <p class="banner-error" role="alert">{{ errorAccion() }}</p>
+}
+
+@if (cargando()) {
+  <div class="card" aria-hidden="true">
+    @for (i of skeletons; track i) {
+      <div class="skeleton-row shimmer"></div>
+    }
+  </div>
+} @else if (error()) {
+  <div class="state-block" role="alert">
+    <span class="material-icons">error_outline</span>
+    <p>{{ error() }}</p>
+    <button type="button" class="btn-secondary" (click)="cargar()">Reintentar</button>
+  </div>
+} @else if (pestana() === 'resenas') {
+  @if (resenas().length === 0) {
+    <div class="state-block">
+      <span class="material-icons">rate_review</span>
+      <h2>Sin reseñas todavía</h2>
+      <p>Cuando los clientes opinen sobre sus compras aparecerán aquí.</p>
+    </div>
+  } @else {
+    <div class="lista">
+      @for (resena of resenas(); track resena.id) {
+        <article class="card comentario-card">
+          <header class="comentario-head">
+            <div>
+              <div class="resena-stars" [attr.aria-label]="resena.calificacion + ' de 5 estrellas'">
+                @for (estrella of estrellas; track estrella) {
+                  <span class="material-icons" [class.is-filled]="estrella <= resena.calificacion">{{ estrella <= resena.calificacion ? 'star' : 'star_border' }}</span>
+                }
+              </div>
+              <span class="comentario-meta">{{ resena.userName }} · {{ resena.productoNombre }} · {{ resena.createdAt | date:'d MMM y' }}</span>
+            </div>
+            <span class="badge" [class.is-ambar]="resena.estado === 'pendiente'" [class.is-verde]="resena.estado === 'atendido'">
+              {{ resena.estado === 'pendiente' ? 'Pendiente' : 'Atendida' }}
+            </span>
+          </header>
+
+          <p class="comentario-texto">{{ resena.comentario }}</p>
+
+          <div class="seguimiento">
+            <label [for]="'respuesta-' + resena.id">Respuesta interna / seguimiento</label>
+            <textarea
+              [id]="'respuesta-' + resena.id"
+              rows="2"
+              [(ngModel)]="respuestas[resena.id]"
+              placeholder="Notas del equipo o respuesta enviada al cliente"></textarea>
+            <div class="seguimiento-actions">
+              <button
+                type="button"
+                class="btn-primary"
+                [disabled]="actualizandoId() === resena.id"
+                (click)="guardarSeguimiento(resena, 'atendido')">Guardar y marcar atendida</button>
+              @if (resena.estado === 'atendido') {
+                <button
+                  type="button"
+                  class="btn-secondary"
+                  [disabled]="actualizandoId() === resena.id"
+                  (click)="guardarSeguimiento(resena, 'pendiente')">Reabrir</button>
+              }
+            </div>
+          </div>
+        </article>
+      }
+    </div>
+  }
+} @else {
+  @if (mensajes().length === 0) {
+    <div class="state-block">
+      <span class="material-icons">mail</span>
+      <h2>Sin mensajes de contacto</h2>
+      <p>Los mensajes enviados desde la página pública aparecerán aquí.</p>
+    </div>
+  } @else {
+    <div class="lista">
+      @for (mensaje of mensajes(); track mensaje.id) {
+        <article class="card comentario-card">
+          <header class="comentario-head">
+            <div>
+              <span class="comentario-autor">{{ mensaje.nombre }}</span>
+              <span class="comentario-meta">{{ mensaje.email }} · {{ mensaje.createdAt | date:'d MMM y, h:mm a' }}</span>
+            </div>
+            <span class="badge" [class.is-ambar]="!mensaje.atendido" [class.is-verde]="mensaje.atendido">
+              {{ mensaje.atendido ? 'Atendido' : 'Pendiente' }}
+            </span>
+          </header>
+
+          <p class="comentario-texto">{{ mensaje.mensaje }}</p>
+
+          @if (!mensaje.atendido) {
+            <div class="seguimiento-actions">
+              <button
+                type="button"
+                class="btn-secondary"
+                [disabled]="actualizandoId() === mensaje.id"
+                (click)="atenderMensaje(mensaje)">Marcar como atendido</button>
+            </div>
+          }
+        </article>
+      }
+    </div>
+  }
+}

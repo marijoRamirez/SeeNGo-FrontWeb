@@ -1,0 +1,154 @@
+<div class="page-quote">
+  <header class="quote-header">
+    <a href="/" class="back-link">
+      <span class="material-icons">arrow_back</span>
+      Volver al inicio
+    </a>
+    <div class="quote-brand">
+      <div class="brand-icon">S</div>
+      <span>SeeNGo</span>
+    </div>
+  </header>
+
+  <main class="quote-main">
+    <div class="quote-intro">
+      <h1>Solicita tu cotización</h1>
+      <p>Cuéntanos qué necesitas y calcula el costo estimado de tu proyecto al instante. Los precios se toman directamente de nuestro catálogo vigente.</p>
+    </div>
+
+    @if (resultado(); as cotizacion) {
+      <section class="quote-card resultado" aria-label="Resultado de la cotización">
+        <div class="resultado-head">
+          <span class="material-icons">request_quote</span>
+          <div>
+            <h2>Cotización generada</h2>
+            <p>Folio #{{ cotizacion.id.slice(-6) | uppercase }} · a nombre de {{ cotizacion.nombre }}</p>
+          </div>
+        </div>
+
+        <table class="resultado-tabla">
+          <thead>
+            <tr>
+              <th>Producto</th>
+              <th>Cantidad</th>
+              <th>Precio unitario</th>
+              <th>Subtotal</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of cotizacion.items; track item.productoId) {
+              <tr>
+                <td>{{ item.nombreProducto }}</td>
+                <td>{{ item.cantidad }}</td>
+                <td>{{ item.precioUnitario | currency:'MXN':'symbol-narrow' }}</td>
+                <td>{{ item.subtotal | currency:'MXN':'symbol-narrow' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+
+        <div class="resultado-total">
+          <span>Total estimado</span>
+          <span>{{ cotizacion.total | currency:'MXN':'symbol-narrow' }}</span>
+        </div>
+
+        <p class="resultado-nota">Guardamos tu solicitud y nuestro equipo te contactará en {{ cotizacion.email }} para afinar detalles de instalación y entrega.</p>
+
+        <div class="resultado-actions">
+          <button type="button" class="btn-secondary" (click)="nuevaCotizacion()">Hacer otra cotización</button>
+          <a href="/" class="btn-primary">Volver al inicio</a>
+        </div>
+      </section>
+    } @else {
+      <section class="quote-card" aria-label="Formulario de cotización">
+        @if (cargando()) {
+          <p class="quote-loading">Cargando catálogo…</p>
+        } @else if (errorCatalogo()) {
+          <div class="quote-error" role="alert">
+            <p>{{ errorCatalogo() }}</p>
+            <button type="button" class="btn-secondary" (click)="cargarProductos()">Reintentar</button>
+          </div>
+        } @else {
+          <form [formGroup]="form" (ngSubmit)="cotizar()">
+            <h2>Tus datos</h2>
+            <div class="field-grid">
+              <div class="field">
+                <label for="quote-nombre">Nombre</label>
+                <input id="quote-nombre" type="text" formControlName="nombre" placeholder="Tu nombre" />
+                @if (form.controls.nombre.touched && form.controls.nombre.invalid) {
+                  <span class="field-error">Escribe tu nombre.</span>
+                }
+              </div>
+              <div class="field">
+                <label for="quote-email">Correo</label>
+                <input id="quote-email" type="email" formControlName="email" placeholder="tucorreo@correo.com" />
+                @if (form.controls.email.touched && form.controls.email.invalid) {
+                  <span class="field-error">Escribe un correo válido.</span>
+                }
+              </div>
+              <div class="field">
+                <label for="quote-telefono">Teléfono (opcional)</label>
+                <input id="quote-telefono" type="tel" formControlName="telefono" placeholder="55 1234 5678" />
+              </div>
+              <div class="field">
+                <label for="quote-propiedad">Tipo de espacio</label>
+                <select id="quote-propiedad" formControlName="tipoPropiedad">
+                  <option value="casa">Casa</option>
+                  <option value="departamento">Departamento</option>
+                  <option value="oficina">Oficina</option>
+                  <option value="otro">Otro</option>
+                </select>
+              </div>
+            </div>
+
+            <h2>Productos a cotizar</h2>
+            <div formArrayName="items" class="items-list">
+              @for (item of items.controls; track item; let i = $index) {
+                <div class="item-row" [formGroupName]="i">
+                  <div class="field item-producto">
+                    <label [for]="'quote-producto-' + i">Producto</label>
+                    <select [id]="'quote-producto-' + i" formControlName="productoId">
+                      <option value="" disabled>Selecciona un producto</option>
+                      @for (producto of productos(); track producto.id) {
+                        <option [value]="producto.id">{{ producto.nombre }} — {{ producto.precio | currency:'MXN':'symbol-narrow' }}</option>
+                      }
+                    </select>
+                  </div>
+                  <div class="field item-cantidad">
+                    <label [for]="'quote-cantidad-' + i">Cantidad</label>
+                    <input [id]="'quote-cantidad-' + i" type="number" min="1" step="1" formControlName="cantidad" />
+                  </div>
+                  <button
+                    type="button"
+                    class="remove-item"
+                    [disabled]="items.length === 1"
+                    [attr.aria-label]="'Quitar producto ' + (i + 1)"
+                    (click)="quitarItem(i)">
+                    <span class="material-icons">delete_outline</span>
+                  </button>
+                </div>
+              }
+            </div>
+
+            <button type="button" class="btn-text" (click)="agregarItem()">
+              <span class="material-icons">add</span>
+              Agregar otro producto
+            </button>
+
+            @if (errorEnvio()) {
+              <p class="banner-error" role="alert">{{ errorEnvio() }}</p>
+            }
+
+            <button type="submit" class="btn-primary btn-cotizar" [disabled]="enviando()">
+              @if (enviando()) {
+                Calculando…
+              } @else {
+                Calcular cotización
+              }
+            </button>
+          </form>
+        }
+      </section>
+    }
+  </main>
+</div>

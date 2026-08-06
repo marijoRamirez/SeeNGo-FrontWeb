@@ -30,10 +30,61 @@
 
         <div class="profile-actions">
           <button class="edit-button" (click)="toggleEdit()">Editar Perfil</button>
+          <button class="logout-button" (click)="togglePasswordForm()">
+            {{ showPasswordForm ? 'Ocultar cambio de contraseña' : 'Cambiar contraseña' }}
+          </button>
           <button class="logout-button" (click)="auth.logout()">Cerrar Sesión</button>
           <button class="delete-button" (click)="requestDeleteConfirmation()">Eliminar Cuenta</button>
         </div>
       </div>
+
+      @if (passwordSuccess) {
+        <p class="success-msg password-feedback">{{ passwordSuccess }}</p>
+      }
+
+      @if (showPasswordForm) {
+        <div class="profile-card password-card">
+          <h2 class="edit-title">Cambiar contraseña</h2>
+
+          <form [formGroup]="passwordForm" class="edit-form" (ngSubmit)="changePassword()">
+            <div class="field">
+              <label>Contraseña actual</label>
+              <input type="password" formControlName="actual" placeholder="••••••••" />
+              @if (passwordForm.controls.actual.touched && passwordForm.controls.actual.invalid) {
+                <span class="password-error">Escribe tu contraseña actual.</span>
+              }
+            </div>
+
+            <div class="field">
+              <label>Nueva contraseña</label>
+              <input type="password" formControlName="nueva" placeholder="Mínimo 6 caracteres" />
+              @if (passwordForm.controls.nueva.touched && passwordForm.controls.nueva.invalid) {
+                <span class="password-error">La nueva contraseña debe tener al menos 6 caracteres.</span>
+              }
+            </div>
+
+            <div class="field">
+              <label>Confirmar nueva contraseña</label>
+              <input type="password" formControlName="confirmar" placeholder="Repite la nueva contraseña" />
+            </div>
+
+            @if (passwordError) {
+              <p class="error-msg">{{ passwordError }}</p>
+            }
+
+            <div class="edit-actions">
+              <button type="submit" class="save-button" [disabled]="isChangingPassword">
+                @if (isChangingPassword) {
+                  Guardando...
+                } @else {
+                  Actualizar contraseña
+                }
+              </button>
+              <button type="button" class="cancel-button" (click)="togglePasswordForm()">Cancelar</button>
+            </div>
+          </form>
+        </div>
+      }
 
     } @else {
 

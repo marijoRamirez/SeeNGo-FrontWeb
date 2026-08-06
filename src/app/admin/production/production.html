@@ -1,0 +1,197 @@
+<div class="page-header">
+  <div>
+    <h1>Producción</h1>
+    <p class="page-sub">Lotes de fabricación de unidades Zigo. Al completar un lote, las unidades se suman al stock de la tienda.</p>
+  </div>
+</div>
+
+<section class="card create-card" aria-label="Crear lote de producción">
+  <h2>Nuevo lote</h2>
+  <form [formGroup]="form" (ngSubmit)="crearLote()">
+    <div class="create-grid">
+      <div class="field">
+        <label for="lote-producto">Producto</label>
+        <select id="lote-producto" formControlName="productoId">
+          <option value="" disabled>Selecciona un producto</option>
+          @for (producto of productos(); track producto.id) {
+            <option [value]="producto.id">{{ producto.nombre }}</option>
+          }
+        </select>
+        @if (form.controls.productoId.touched && form.controls.productoId.invalid) {
+          <span class="field-error">Selecciona el producto a fabricar.</span>
+        }
+      </div>
+
+      <div class="field">
+        <label for="lote-cantidad">Unidades planeadas</label>
+        <input id="lote-cantidad" type="number" min="1" step="1" formControlName="cantidadPlaneada" placeholder="20" />
+        @if (form.controls.cantidadPlaneada.touched && form.controls.cantidadPlaneada.invalid) {
+          <span class="field-error">Indica al menos 1 unidad.</span>
+        }
+      </div>
+
+      <div class="field field-notas">
+        <label for="lote-notas">Notas (opcional)</label>
+        <input id="lote-notas" type="text" formControlName="notas" placeholder="Ensamble con cámaras del proveedor nuevo" />
+      </div>
+
+      <button type="submit" class="btn-primary" [disabled]="creando()">
+        @if (creando()) {
+          Creando…
+        } @else {
+          Crear lote
+        }
+      </button>
+    </div>
+
+    @if (errorCrear()) {
+      <p class="banner-error" role="alert">{{ errorCrear() }}</p>
+    }
+  </form>
+</section>
+
+@if (errorAccion()) {
+  <p class="banner-error" role="alert">{{ errorAccion() }}</p>
+}
+
+@if (cargando()) {
+  <div class="lote-list" aria-hidden="true">
+    @for (i of skeletons; track i) {
+      <div class="card lote-card is-skeleton">
+        <div class="skeleton-line shimmer"></div>
+        <div class="skeleton-line short shimmer"></div>
+      </div>
+    }
+  </div>
+} @else if (error()) {
+  <div class="state-block" role="alert">
+    <span class="material-icons">error_outline</span>
+    <p>{{ error() }}</p>
+    <button type="button" class="btn-secondary" (click)="cargar()">Reintentar</button>
+  </div>
+} @else if (lotes().length === 0) {
+  <div class="state-block">
+    <span class="material-icons">precision_manufacturing</span>
+    <h2>Sin lotes de producción</h2>
+    <p>Crea un lote para llevar el control de las unidades que fabriques.</p>
+  </div>
+} @else {
+  <div class="lote-list">
+    @for (lote of lotes(); track lote.id) {
+      <article class="card lote-card">
+        <header class="lote-head">
+          <div class="lote-head-info">
+            <h3>{{ lote.productoNombre }}</h3>
+            <span class="lote-fecha">Creado el {{ lote.createdAt | date:'d MMM y' }}</span>
+          </div>
+          <span class="estado-badge" [class]="'estado-badge is-' + lote.estado">{{ etiquetaEstado(lote.estado) }}</span>
+        </header>
+
+        <div class="lote-progress">
+          <div class="progress-track">
+            <div class="progress-fill" [style.width.%]="progreso(lote)"></div>
+          </div>
+          <span class="progress-label">{{ lote.cantidadProducida }} de {{ lote.cantidadPlaneada }} unidades</span>
+        </div>
+
+        @if (lote.notas) {
+          <p class="lote-notas">{{ lote.notas }}</p>
+        }
+
+        @switch (lote.estado) {
+          @case ('planificado') {
+            <div class="lote-actions">
+              <button
+                type="button"
+                class="btn-primary"
+                [disabled]="actualizandoId() === lote.id"
+                (click)="avanzar(lote, 'en_produccion', lote.cantidadProducida)">Iniciar producción</button>
+              <button
+                type="button"
+                class="btn-text"
+                [disabled]="actualizandoId() === lote.id"
+                (click)="pedirEliminar(lote)">Eliminar</button>
+            </div>
+          }
+          @case ('en_produccion') {
+            <div class="lote-actions">
+              <label class="qty-label" [for]="'qty-' + lote.id">Unidades producidas</label>
+              <input
+                [id]="'qty-' + lote.id"
+                #cantidad
+                type="number"
+                class="qty-input"
+                min="0"
+                step="1"
+                [value]="cantidadSugerida(lote)" />
+              <button
+                type="button"
+                class="btn-primary"
+                [disabled]="actualizandoId() === lote.id"
+                (click)="avanzar(lote, 'control_calidad', cantidad.valueAsNumber)">Pasar a control de calidad</button>
+              <button
+                type="button"
+                class="btn-text"
+                [disabled]="actualizandoId() === lote.id"
+                (click)="avanzar(lote, 'cancelado', lote.cantidadProducida)">Cancelar lote</button>
+            </div>
+          }
+          @case ('control_calidad') {
+            <div class="lote-actions">
+              <label class="qty-label" [for]="'qty-' + lote.id">Unidades aprobadas</label>
+              <input
+                [id]="'qty-' + lote.id"
+                #cantidad
+                type="number"
+                class="qty-input"
+                min="0"
+                step="1"
+                [value]="cantidadSugerida(lote)" />
+              <button
+                type="button"
+                class="btn-primary"
+                [disabled]="actualizandoId() === lote.id"
+                (click)="avanzar(lote, 'completado', cantidad.valueAsNumber)">Completar y sumar al stock</button>
+              <button
+                type="button"
+                class="btn-text"
+                [disabled]="actualizandoId() === lote.id"
+                (click)="avanzar(lote, 'cancelado', lote.cantidadProducida)">Cancelar lote</button>
+            </div>
+          }
+          @case ('completado') {
+            <p class="lote-cierre">Completado el {{ lote.completedAt | date:'d MMM y, h:mm a' }} · unidades sumadas al stock.</p>
+          }
+          @case ('cancelado') {
+            <div class="lote-actions">
+              <button
+                type="button"
+                class="btn-text"
+                [disabled]="actualizandoId() === lote.id"
+                (click)="pedirEliminar(lote)">Eliminar</button>
+            </div>
+          }
+        }
+      </article>
+    }
+  </div>
+}
+
+@if (loteAEliminar(); as lote) {
+  <div class="modal-overlay" (click)="cancelarEliminar()">
+    <div class="modal modal-confirm" (click)="$event.stopPropagation()">
+      <h2>¿Eliminar lote?</h2>
+      <p>El lote de "{{ lote.productoNombre }}" se eliminará del historial de producción.</p>
+      <div class="modal-actions">
+        <button type="button" class="btn-danger" [disabled]="eliminando()" (click)="eliminar()">
+          @if (eliminando()) {
+            Eliminando…
+          } @else {
+            Eliminar
+          }
+        </button>
+        <button type="button" class="btn-secondary" [disabled]="eliminando()" (click)="cancelarEliminar()">Cancelar</button>
+      </div>
+    </div>
+  </div>
+}

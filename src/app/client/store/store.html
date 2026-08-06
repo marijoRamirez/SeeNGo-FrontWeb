@@ -1,0 +1,162 @@
+<div class="store-header">
+  <h1>Tienda</h1>
+  <p class="store-sub">Dispositivos y accesorios para tu hogar SeeNGo.</p>
+</div>
+
+<div class="store-layout">
+  <section class="catalog" aria-label="Catálogo de productos">
+    @if (cargando()) {
+      <div class="catalog-grid">
+        @for (i of skeletons; track i) {
+          <div class="product-card is-skeleton" aria-hidden="true">
+            <div class="product-media shimmer"></div>
+            <div class="skeleton-line shimmer"></div>
+            <div class="skeleton-line short shimmer"></div>
+          </div>
+        }
+      </div>
+    } @else if (errorCatalogo()) {
+      <div class="state-block" role="alert">
+        <span class="material-icons">error_outline</span>
+        <p>{{ errorCatalogo() }}</p>
+        <button type="button" class="btn-secondary" (click)="cargarProductos()">Reintentar</button>
+      </div>
+    } @else if (productos().length === 0) {
+      <div class="state-block">
+        <span class="material-icons">storefront</span>
+        <p>Aún no hay productos en el catálogo.</p>
+      </div>
+    } @else {
+      <div class="catalog-grid">
+        @for (producto of productos(); track producto.id) {
+          <article class="product-card">
+            <div class="product-media">
+              @if (producto.imagenUrl) {
+                <img [src]="producto.imagenUrl" [alt]="producto.nombre" loading="lazy" />
+              } @else {
+                <span class="material-icons" aria-hidden="true">memory</span>
+              }
+            </div>
+            <div class="product-body">
+              <h2>{{ producto.nombre }}</h2>
+              <p class="product-desc">{{ producto.descripcion }}</p>
+              <div class="product-meta">
+                <span class="product-price">{{ producto.precio | currency:'MXN':'symbol-narrow' }}</span>
+                @if (producto.stock === 0) {
+                  <span class="stock-badge is-agotado">Agotado</span>
+                } @else if (producto.stock <= 3) {
+                  <span class="stock-badge is-bajo">Quedan {{ producto.stock }}</span>
+                } @else {
+                  <span class="stock-badge">{{ producto.stock }} disponibles</span>
+                }
+              </div>
+              <button
+                type="button"
+                class="btn-primary"
+                [disabled]="producto.stock === 0 || cantidadEnCarrito(producto.id) >= producto.stock"
+                (click)="cart.agregar(producto)">
+                @if (cantidadEnCarrito(producto.id) > 0) {
+                  En el carrito ({{ cantidadEnCarrito(producto.id) }})
+                } @else if (producto.stock === 0) {
+                  Sin existencias
+                } @else {
+                  Agregar
+                }
+              </button>
+            </div>
+          </article>
+        }
+      </div>
+    }
+  </section>
+
+  <aside class="cart-panel" aria-label="Carrito de compras">
+    @if (ultimaCompra(); as venta) {
+      <div class="cart-success">
+        <span class="material-icons">check_circle</span>
+        <h2>Compra confirmada</h2>
+        <p class="cart-success-ref">Orden #{{ venta.id.slice(-6) | uppercase }}</p>
+        <p class="cart-success-total">{{ venta.total | currency:'MXN':'symbol-narrow' }}</p>
+        <a routerLink="/client/purchases" class="btn-primary">Ver mis compras</a>
+        <button type="button" class="btn-secondary" (click)="seguirComprando()">Seguir comprando</button>
+      </div>
+    } @else {
+      <div class="cart-head">
+        <h2>Tu carrito</h2>
+        @if (cart.totalArticulos() > 0) {
+          <span class="cart-count">{{ cart.totalArticulos() }}</span>
+        }
+      </div>
+
+      @if (cart.items().length === 0) {
+        <p class="cart-empty">Tu carrito está vacío. Agrega productos del catálogo.</p>
+      } @else {
+        <ul class="cart-items">
+          @for (item of cart.items(); track item.producto.id) {
+            <li class="cart-item">
+              <div class="cart-item-top">
+                <span class="cart-item-name">{{ item.producto.nombre }}</span>
+                <button
+                  type="button"
+                  class="remove-btn"
+                  [attr.aria-label]="'Eliminar ' + item.producto.nombre + ' del carrito'"
+                  (click)="cart.quitar(item.producto.id)">
+                  <span class="material-icons">delete_outline</span>
+                </button>
+              </div>
+              <div class="cart-item-bottom">
+                <div class="qty-controls">
+                  <button
+                    type="button"
+                    class="qty-btn"
+                    [attr.aria-label]="'Quitar una unidad de ' + item.producto.nombre"
+                    (click)="cart.cambiarCantidad(item.producto.id, item.cantidad - 1)">−</button>
+                  <span class="qty-value">{{ item.cantidad }}</span>
+                  <button
+                    type="button"
+                    class="qty-btn"
+                    [disabled]="item.cantidad >= item.producto.stock"
+                    [attr.aria-label]="'Agregar una unidad de ' + item.producto.nombre"
+                    (click)="cart.cambiarCantidad(item.producto.id, item.cantidad + 1)">+</button>
+                </div>
+                <span class="cart-item-subtotal">
+                  {{ item.cantidad * item.producto.precio | currency:'MXN':'symbol-narrow' }}
+                </span>
+              </div>
+            </li>
+          }
+        </ul>
+
+        @if (errorCompra()) {
+          <p class="cart-error" role="alert">{{ errorCompra() }}</p>
+        }
+
+        <div class="cart-total">
+          <span>Total</span>
+          <span>{{ cart.total() | currency:'MXN':'symbol-narrow' }}</span>
+        </div>
+
+        @if (auth.isLoggedIn$ | async) {
+          <button
+            type="button"
+            class="btn-primary btn-checkout"
+            [disabled]="estadoCompra() === 'enviando'"
+            (click)="finalizarCompra()">
+            @if (estadoCompra() === 'enviando') {
+              Procesando…
+            } @else {
+              Finalizar compra
+            }
+          </button>
+        } @else {
+          <a routerLink="/login" class="btn-primary btn-checkout">Inicia sesión para comprar</a>
+        }
+        <button
+          type="button"
+          class="btn-text"
+          [disabled]="estadoCompra() === 'enviando'"
+          (click)="cart.vaciar()">Vaciar carrito</button>
+      }
+    }
+  </aside>
+</div>

@@ -34,7 +34,7 @@ export class Login {
         if (role === 'admin') {
           this.router.navigate(['/admin/dashboard']);
         } else {
-          this.router.navigate(['/landing']);
+          this.router.navigate(['/client/store']);
         }
       },
       error: () => {

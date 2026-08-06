@@ -1,0 +1,126 @@
+<div class="page-header">
+  <div>
+    <h1>Compras a proveedores</h1>
+    <p class="page-sub">Registra las compras de insumos. Cada compra suma existencias y recalcula el costo promedio ponderado de la materia prima.</p>
+  </div>
+</div>
+
+<section class="card compra-form" aria-label="Registrar compra">
+  <h2>Nueva compra</h2>
+
+  @if (proveedores().length === 0 && !cargando()) {
+    <p class="nota-previa">Primero registra un proveedor en el módulo de Proveedores.</p>
+  } @else if (materias().length === 0 && !cargando()) {
+    <p class="nota-previa">Primero da de alta insumos en el módulo de Materia prima.</p>
+  } @else {
+    <form [formGroup]="form" (ngSubmit)="registrarCompra()">
+      <div class="field field-proveedor">
+        <label for="compra-proveedor">Proveedor</label>
+        <select id="compra-proveedor" formControlName="proveedorId">
+          <option value="" disabled>Selecciona un proveedor</option>
+          @for (proveedor of proveedores(); track proveedor.id) {
+            <option [value]="proveedor.id">{{ proveedor.nombre }}</option>
+          }
+        </select>
+        @if (form.controls.proveedorId.touched && form.controls.proveedorId.invalid) {
+          <span class="field-error">Selecciona el proveedor.</span>
+        }
+      </div>
+
+      <div formArrayName="items" class="items-list">
+        @for (item of items.controls; track item; let i = $index) {
+          <div class="item-row" [formGroupName]="i">
+            <div class="field">
+              <label [for]="'compra-materia-' + i">Insumo</label>
+              <select [id]="'compra-materia-' + i" formControlName="materiaPrimaId">
+                <option value="" disabled>Selecciona un insumo</option>
+                @for (materia of materias(); track materia.id) {
+                  <option [value]="materia.id">{{ materia.nombre }} ({{ materia.unidad }})</option>
+                }
+              </select>
+            </div>
+            <div class="field">
+              <label [for]="'compra-cantidad-' + i">Cantidad</label>
+              <input [id]="'compra-cantidad-' + i" type="number" min="0" step="0.01" formControlName="cantidad" placeholder="10" />
+            </div>
+            <div class="field">
+              <label [for]="'compra-costo-' + i">Costo unitario</label>
+              <input [id]="'compra-costo-' + i" type="number" min="0" step="0.01" formControlName="costoUnitario" placeholder="150.00" />
+            </div>
+            <button
+              type="button"
+              class="remove-item"
+              [disabled]="items.length === 1"
+              [attr.aria-label]="'Quitar insumo ' + (i + 1)"
+              (click)="quitarItem(i)">
+              <span class="material-icons">delete_outline</span>
+            </button>
+          </div>
+        }
+      </div>
+
+      <button type="button" class="btn-agregar" (click)="agregarItem()">
+        <span class="material-icons">add</span>
+        Agregar otro insumo
+      </button>
+
+      @if (errorGuardar()) {
+        <p class="banner-error" role="alert">{{ errorGuardar() }}</p>
+      }
+
+      <div class="compra-footer">
+        <span class="compra-total">Total: {{ totalEstimado() | currency:'MXN':'symbol-narrow' }}</span>
+        <button type="submit" class="btn-primary" [disabled]="guardando()">
+          @if (guardando()) {
+            Registrando…
+          } @else {
+            Registrar compra
+          }
+        </button>
+      </div>
+    </form>
+  }
+</section>
+
+@if (cargando()) {
+  <div class="card" aria-hidden="true">
+    @for (i of skeletons; track i) {
+      <div class="skeleton-row shimmer"></div>
+    }
+  </div>
+} @else if (error()) {
+  <div class="state-block" role="alert">
+    <span class="material-icons">error_outline</span>
+    <p>{{ error() }}</p>
+    <button type="button" class="btn-secondary" (click)="cargar()">Reintentar</button>
+  </div>
+} @else if (compras().length === 0) {
+  <div class="state-block">
+    <span class="material-icons">shopping_basket</span>
+    <h2>Sin compras registradas</h2>
+    <p>Las compras de materia prima a proveedores aparecerán aquí.</p>
+  </div>
+} @else {
+  <div class="compra-list">
+    @for (compra of compras(); track compra.id) {
+      <article class="card compra-card">
+        <header class="compra-head">
+          <div>
+            <span class="compra-proveedor">{{ compra.proveedorNombre }}</span>
+            <span class="compra-fecha">{{ compra.createdAt | date:'d MMM y, h:mm a' }}</span>
+          </div>
+          <span class="compra-monto">{{ compra.total | currency:'MXN':'symbol-narrow' }}</span>
+        </header>
+        <ul class="compra-items">
+          @for (item of compra.items; track item.materiaPrimaId) {
+            <li>
+              <span class="item-nombre">{{ item.nombre }}</span>
+              <span class="item-detalle">{{ item.cantidad }} × {{ item.costoUnitario | currency:'MXN':'symbol-narrow' }}</span>
+              <span class="item-subtotal">{{ item.cantidad * item.costoUnitario | currency:'MXN':'symbol-narrow' }}</span>
+            </li>
+          }
+        </ul>
+      </article>
+    }
+  </div>
+}

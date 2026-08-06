@@ -1,0 +1,148 @@
+<div class="page-header">
+  <div>
+    <h1>Materia prima</h1>
+    <p class="page-sub">Insumos para la producción. La existencia y el costo promedio ponderado se actualizan automáticamente con cada compra a proveedor.</p>
+  </div>
+  <button type="button" class="btn-primary" (click)="abrirCrear()">Nueva materia prima</button>
+</div>
+
+@if (errorAccion()) {
+  <p class="banner-error" role="alert">{{ errorAccion() }}</p>
+}
+
+@if (cargando()) {
+  <div class="card" aria-hidden="true">
+    @for (i of skeletons; track i) {
+      <div class="skeleton-row shimmer"></div>
+    }
+  </div>
+} @else if (error()) {
+  <div class="state-block" role="alert">
+    <span class="material-icons">error_outline</span>
+    <p>{{ error() }}</p>
+    <button type="button" class="btn-secondary" (click)="cargar()">Reintentar</button>
+  </div>
+} @else if (materias().length === 0) {
+  <div class="state-block">
+    <span class="material-icons">category</span>
+    <h2>Sin materia prima registrada</h2>
+    <p>Da de alta los insumos que usas para fabricar los productos Zigo.</p>
+    <button type="button" class="btn-primary" (click)="abrirCrear()">Nueva materia prima</button>
+  </div>
+} @else {
+  <div class="card table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Insumo</th>
+          <th>Unidad</th>
+          <th>Existencia</th>
+          <th>Costo promedio</th>
+          <th>Última actualización</th>
+          <th class="th-actions">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (materia of materias(); track materia.id) {
+          <tr>
+            <td class="td-nombre">{{ materia.nombre }}</td>
+            <td>{{ materia.unidad }}</td>
+            <td>
+              @if (materia.existencia === 0) {
+                <span class="badge is-rojo">Sin existencia</span>
+              } @else {
+                {{ materia.existencia }}
+              }
+            </td>
+            <td>{{ materia.costoPromedio | currency:'MXN':'symbol-narrow' }}</td>
+            <td>{{ materia.updatedAt | date:'d MMM y' }}</td>
+            <td class="td-actions">
+              <button
+                type="button"
+                class="icon-btn"
+                [attr.aria-label]="'Editar ' + materia.nombre"
+                (click)="abrirEditar(materia)">
+                <span class="material-icons">edit</span>
+              </button>
+              <button
+                type="button"
+                class="icon-btn is-danger"
+                [attr.aria-label]="'Eliminar ' + materia.nombre"
+                (click)="pedirEliminar(materia)">
+                <span class="material-icons">delete_outline</span>
+              </button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+}
+
+@if (mostrandoForm()) {
+  <div class="modal-overlay" (click)="cerrarForm()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <h2>{{ materiaEnEdicion() ? 'Editar materia prima' : 'Nueva materia prima' }}</h2>
+
+      <form [formGroup]="form" (ngSubmit)="guardar()">
+        <div class="field">
+          <label for="materia-nombre">Nombre del insumo</label>
+          <input id="materia-nombre" type="text" formControlName="nombre" placeholder="Cámara IMX219" />
+          @if (form.controls.nombre.touched && form.controls.nombre.invalid) {
+            <span class="field-error">Escribe el nombre del insumo.</span>
+          }
+        </div>
+
+        <div class="field">
+          <label for="materia-unidad">Unidad de medida</label>
+          <select id="materia-unidad" formControlName="unidad">
+            <option value="pieza">Pieza</option>
+            <option value="metro">Metro</option>
+            <option value="kg">Kilogramo</option>
+            <option value="litro">Litro</option>
+            <option value="rollo">Rollo</option>
+            <option value="paquete">Paquete</option>
+          </select>
+        </div>
+
+        @if (materiaEnEdicion(); as materia) {
+          <p class="nota-costeo">Existencia actual: {{ materia.existencia }} {{ materia.unidad }} · costo promedio {{ materia.costoPromedio | currency:'MXN':'symbol-narrow' }}. Estos valores solo cambian registrando compras a proveedores.</p>
+        }
+
+        @if (errorGuardar()) {
+          <p class="banner-error" role="alert">{{ errorGuardar() }}</p>
+        }
+
+        <div class="modal-actions">
+          <button type="submit" class="btn-primary" [disabled]="guardando()">
+            @if (guardando()) {
+              Guardando…
+            } @else {
+              {{ materiaEnEdicion() ? 'Guardar cambios' : 'Crear insumo' }}
+            }
+          </button>
+          <button type="button" class="btn-secondary" [disabled]="guardando()" (click)="cerrarForm()">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
+
+@if (materiaAEliminar(); as materia) {
+  <div class="modal-overlay" (click)="cancelarEliminar()">
+    <div class="modal modal-confirm" (click)="$event.stopPropagation()">
+      <h2>¿Eliminar materia prima?</h2>
+      <p>"{{ materia.nombre }}" se eliminará del inventario de insumos.</p>
+      <div class="modal-actions">
+        <button type="button" class="btn-danger" [disabled]="eliminando()" (click)="eliminar()">
+          @if (eliminando()) {
+            Eliminando…
+          } @else {
+            Eliminar
+          }
+        </button>
+        <button type="button" class="btn-secondary" [disabled]="eliminando()" (click)="cancelarEliminar()">Cancelar</button>
+      </div>
+    </div>
+  </div>
+}

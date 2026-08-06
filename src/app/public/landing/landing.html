@@ -10,11 +10,12 @@
         </div>
       </div>
       <nav class="nav">
-        <a href="#" class="nav-link">Inicio</a>
+        <a href="/" class="nav-link">Inicio</a>
+        <a href="#nosotros" class="nav-link">Empresa</a>
         <a href="#features" class="nav-link">Características</a>
-        <a href="#como-funciona" class="nav-link">Cómo funciona</a>
         <a href="#documentacion" class="nav-link">Documentación</a>
-        <a href="#" class="nav-link">Contacto</a>
+        <a href="/cotizacion" class="nav-link">Cotización</a>
+        <a href="#contacto" class="nav-link">Contacto</a>
       </nav>
       <div class="header-actions">
         @if (!isLogged) {
@@ -50,8 +51,9 @@
         @if(!isLogged) {
           <a href="/login" class="btn-primary btn-lg">Comenzar ahora</a>
         } @else {
-          <a href="/client/profile" class="btn-primary btn-lg">Ir al panel</a>
+          <a href="/client/store" class="btn-primary btn-lg">Ir a la tienda</a>
         }
+        <a href="/cotizacion" class="btn-outline btn-lg">Solicitar cotización</a>
       </div>
     </div>
     <div class="hero-visual">
@@ -59,6 +61,30 @@
       <img src="img/seengoproto.webp" alt="Visualización del producto" />
     </div>
   </div>
+  </section>
+
+  <section class="nosotros" id="nosotros">
+    <div class="section-header">
+      <h2>Quiénes somos</h2>
+      <p>La empresa detrás del ecosistema Zigo</p>
+    </div>
+    <div class="nosotros-grid">
+      <div class="nosotros-card">
+        <span class="material-icons nosotros-icon">flag</span>
+        <h3>Nuestra misión</h3>
+        <p>Hacer la domótica accesible para todos. SeeNGo diseña, fabrica y comercializa el ecosistema Zigo: un sistema de control del hogar por gestos pensado para personas con discapacidad auditiva o de movilidad, y para cualquiera que prefiera controlar su casa sin apps complicadas ni comandos de voz.</p>
+      </div>
+      <div class="nosotros-card">
+        <span class="material-icons nosotros-icon">factory</span>
+        <h3>Qué hacemos</h3>
+        <p>Desarrollamos hardware y software propios: la unidad central con visión artificial, los accesorios inteligentes compatibles y la plataforma web y móvil para configurarlos. Cada unidad se ensambla y prueba en nuestros lotes de producción antes de llegar a tu casa.</p>
+      </div>
+      <div class="nosotros-card">
+        <span class="material-icons nosotros-icon">handshake</span>
+        <h3>Cómo trabajamos</h3>
+        <p>Acompañamos al cliente de principio a fin: cotización según las necesidades de tu espacio, instalación guiada, documentación de cada producto y soporte directo con nuestro equipo técnico.</p>
+      </div>
+    </div>
   </section>
 
   <section class="features" id="features">
@@ -142,7 +168,7 @@
   </section>
 
   <section id="documentacion">
-      <h1 class="doc-title">Nuestra Documentación</h1>
+      <h2 class="doc-title">Nuestra Documentación</h2>
 
         <div class="documentation-container">
           <div class="documentation-card">
@@ -216,6 +242,14 @@
               <h3>¿Qué pasa si alguien más hace el mismo gesto?</h3>
               <p>SeeNGo reconoce patrones generales de movimiento, no datos biométricos. Cualquier persona en el hogar puede usar los gestos entrenados.</p>
             </div>
+            <div class="faq-item">
+              <h3>¿Dónde compro los productos?</h3>
+              <p>Desde la tienda en línea de tu cuenta SeeNGo. Si buscas un proyecto a la medida, solicita una cotización y te preparamos una propuesta.</p>
+            </div>
+            <div class="faq-item">
+              <h3>¿Necesito conocimientos técnicos para instalarlo?</h3>
+              <p>No. Cada producto incluye su guía de uso paso a paso en tu sección de compras, y nuestro equipo te acompaña durante la instalación.</p>
+            </div>
           </div>
 
           <div class="documentation-card">
@@ -232,9 +266,119 @@
 
   </section>
 
+  <section class="resenas" id="resenas">
+    <div class="section-header">
+      <h2>Lo que dicen nuestros clientes</h2>
+      <p>Opiniones reales de quienes ya usan SeeNGo en su hogar</p>
+    </div>
+    @if (resenas().length === 0) {
+      <p class="resenas-empty">Aún no hay reseñas publicadas. Compra un producto y sé el primero en compartir tu experiencia.</p>
+    } @else {
+      <div class="resenas-grid">
+        @for (resena of resenas(); track resena.id) {
+          <article class="resena-card">
+            <div class="resena-stars" [attr.aria-label]="resena.calificacion + ' de 5 estrellas'">
+              @for (estrella of estrellas; track estrella) {
+                <span class="material-icons" [class.is-filled]="estrella <= resena.calificacion">{{ estrella <= resena.calificacion ? 'star' : 'star_border' }}</span>
+              }
+            </div>
+            <p class="resena-comentario">{{ resena.comentario }}</p>
+            <footer class="resena-meta">
+              <span class="resena-autor">{{ resena.userName }}</span>
+              <span class="resena-producto">{{ resena.productoNombre }}</span>
+            </footer>
+          </article>
+        }
+      </div>
+    }
+  </section>
+
+  <section class="contacto" id="contacto">
+    <div class="section-header">
+      <h2>Contacto</h2>
+      <p>¿Tienes dudas o un proyecto en mente? Escríbenos.</p>
+    </div>
+    <div class="contacto-grid">
+      <div class="contacto-datos">
+        <div class="contacto-item">
+          <span class="material-icons">mail</span>
+          <div>
+            <h3>Correo</h3>
+            <p>soporte&#64;seengo.com</p>
+          </div>
+        </div>
+        <div class="contacto-item">
+          <span class="material-icons">schedule</span>
+          <div>
+            <h3>Horario de atención</h3>
+            <p>Lunes a viernes de 9:00 a 18:00</p>
+          </div>
+        </div>
+        <div class="contacto-item">
+          <span class="material-icons">support_agent</span>
+          <div>
+            <h3>Tiempo de respuesta</h3>
+            <p>Menos de 24 horas hábiles</p>
+          </div>
+        </div>
+        <div class="contacto-item">
+          <span class="material-icons">request_quote</span>
+          <div>
+            <h3>¿Buscas precios?</h3>
+            <p><a href="/cotizacion" class="contacto-link">Solicita una cotización en línea</a></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="contacto-form-card">
+        @if (contactoEnviado()) {
+          <div class="contacto-exito">
+            <span class="material-icons">check_circle</span>
+            <h3>Mensaje enviado</h3>
+            <p>Gracias por escribirnos. Te responderemos en menos de 24 horas hábiles.</p>
+          </div>
+        } @else {
+          <form [formGroup]="contactoForm" (ngSubmit)="enviarContacto()">
+            <div class="field">
+              <label for="contacto-nombre">Nombre</label>
+              <input id="contacto-nombre" type="text" formControlName="nombre" placeholder="Tu nombre" />
+              @if (contactoForm.controls.nombre.touched && contactoForm.controls.nombre.invalid) {
+                <span class="field-error">Escribe tu nombre.</span>
+              }
+            </div>
+            <div class="field">
+              <label for="contacto-email">Correo</label>
+              <input id="contacto-email" type="email" formControlName="email" placeholder="tucorreo@correo.com" />
+              @if (contactoForm.controls.email.touched && contactoForm.controls.email.invalid) {
+                <span class="field-error">Escribe un correo válido.</span>
+              }
+            </div>
+            <div class="field">
+              <label for="contacto-mensaje">Mensaje</label>
+              <textarea id="contacto-mensaje" rows="4" formControlName="mensaje" placeholder="Cuéntanos qué necesitas"></textarea>
+              @if (contactoForm.controls.mensaje.touched && contactoForm.controls.mensaje.invalid) {
+                <span class="field-error">El mensaje debe tener al menos 10 caracteres.</span>
+              }
+            </div>
+            @if (errorContacto()) {
+              <p class="field-error" role="alert">{{ errorContacto() }}</p>
+            }
+            <button type="submit" class="btn-primary btn-contacto" [disabled]="enviandoContacto()">
+              @if (enviandoContacto()) {
+                Enviando…
+              } @else {
+                Enviar mensaje
+              }
+            </button>
+          </form>
+        }
+      </div>
+    </div>
+  </section>
+
   <section class="cta-section">
     <div class="cta-content">
-      <h1>¿Listo para tener tu hogar inteligente?</h1>
+      <h2>¿Listo para tener tu hogar inteligente?</h2>
       <p>Empieza a controlar tu hogar con gestos hoy mismo. Sin complicaciones, sin límites.</p>
       <a href="/login" class="btn-primary btn-lg">Empieza gratis</a>
     </div>

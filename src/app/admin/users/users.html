@@ -1,22 +1,161 @@
-<div class="welcome-section">
+<div class="page-header">
   <div>
     <h1>Usuarios</h1>
-    <p class="welcome-sub">Analiza la información de los usuarios de tu sistema</p>
+    <p class="page-sub">Administradores y clientes de la plataforma. Al crear un cliente, comparte sus accesos por correo.</p>
   </div>
-
-  <div class = "user-info">
-    <div class = "user-card">
-      <h2>Usuario 1</h2>
-      <p>Información del usuario 1</p>
-    </div>
-    <div class = "user-card">
-      <h2>Usuario 2</h2>
-      <p>Información del usuario 2</p>
-    </div>
-    <div class = "user-card">
-      <h2>Usuario 3</h2>
-      <p>Información del usuario 3</p>
-    </div>
-  </div>
+  <button type="button" class="btn-primary" (click)="abrirCrear()">Nuevo usuario</button>
 </div>
 
+@if (errorAccion()) {
+  <p class="banner-error" role="alert">{{ errorAccion() }}</p>
+}
+
+@if (cargando()) {
+  <div class="card" aria-hidden="true">
+    @for (i of skeletons; track i) {
+      <div class="skeleton-row shimmer"></div>
+    }
+  </div>
+} @else if (error()) {
+  <div class="state-block" role="alert">
+    <span class="material-icons">error_outline</span>
+    <p>{{ error() }}</p>
+    <button type="button" class="btn-secondary" (click)="cargar()">Reintentar</button>
+  </div>
+} @else if (usuarios().length === 0) {
+  <div class="state-block">
+    <span class="material-icons">group</span>
+    <h2>Sin usuarios registrados</h2>
+    <p>Crea el primer usuario para dar acceso a la plataforma.</p>
+    <button type="button" class="btn-primary" (click)="abrirCrear()">Nuevo usuario</button>
+  </div>
+} @else {
+  <div class="card table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Correo</th>
+          <th>Rol</th>
+          <th>Registro</th>
+          <th class="th-actions">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (usuario of usuarios(); track usuario.id) {
+          <tr>
+            <td>{{ usuario.name }}</td>
+            <td>{{ usuario.email }}</td>
+            <td>
+              <span class="badge" [class.is-verde]="usuario.role === 'admin'" [class.is-gris]="usuario.role !== 'admin'">
+                {{ usuario.role === 'admin' ? 'Administrador' : 'Cliente' }}
+              </span>
+            </td>
+            <td>{{ usuario.createdAt | date:'d MMM y' }}</td>
+            <td class="td-actions">
+              <button
+                type="button"
+                class="icon-btn is-danger"
+                [attr.aria-label]="'Eliminar a ' + usuario.name"
+                (click)="pedirEliminar(usuario)">
+                <span class="material-icons">delete_outline</span>
+              </button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+}
+
+@if (mostrandoForm()) {
+  <div class="modal-overlay" (click)="cerrarForm()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      @if (usuarioCreado(); as creado) {
+        <div class="creado-exito">
+          <span class="material-icons">check_circle</span>
+          <h2>Usuario creado</h2>
+          <p>Comparte estos accesos con {{ creado.name }} por correo. La contraseña temporal solo se muestra una vez.</p>
+          <dl class="accesos">
+            <div>
+              <dt>Correo</dt>
+              <dd>{{ creado.email }}</dd>
+            </div>
+            <div>
+              <dt>Contraseña temporal</dt>
+              <dd class="password-temporal">{{ creado.passwordTemporal }}</dd>
+            </div>
+          </dl>
+          <div class="modal-actions">
+            <button type="button" class="btn-primary" (click)="copiarAccesos()">
+              {{ passwordCopiada() ? 'Copiado ✓' : 'Copiar accesos' }}
+            </button>
+            <button type="button" class="btn-secondary" (click)="cerrarForm()">Cerrar</button>
+          </div>
+        </div>
+      } @else {
+        <h2>Nuevo usuario</h2>
+
+        <form [formGroup]="form" (ngSubmit)="crear()">
+          <div class="field">
+            <label for="usuario-nombre">Nombre</label>
+            <input id="usuario-nombre" type="text" formControlName="name" placeholder="Nombre completo" />
+            @if (form.controls.name.touched && form.controls.name.invalid) {
+              <span class="field-error">Escribe el nombre del usuario.</span>
+            }
+          </div>
+
+          <div class="field">
+            <label for="usuario-email">Correo</label>
+            <input id="usuario-email" type="email" formControlName="email" placeholder="correo@ejemplo.com" />
+            @if (form.controls.email.touched && form.controls.email.invalid) {
+              <span class="field-error">Escribe un correo válido.</span>
+            }
+          </div>
+
+          <div class="field">
+            <label for="usuario-rol">Rol</label>
+            <select id="usuario-rol" formControlName="role">
+              <option value="client">Cliente</option>
+              <option value="admin">Administrador</option>
+            </select>
+          </div>
+
+          @if (errorGuardar()) {
+            <p class="banner-error" role="alert">{{ errorGuardar() }}</p>
+          }
+
+          <div class="modal-actions">
+            <button type="submit" class="btn-primary" [disabled]="guardando()">
+              @if (guardando()) {
+                Creando…
+              } @else {
+                Crear usuario
+              }
+            </button>
+            <button type="button" class="btn-secondary" [disabled]="guardando()" (click)="cerrarForm()">Cancelar</button>
+          </div>
+        </form>
+      }
+    </div>
+  </div>
+}
+
+@if (usuarioAEliminar(); as usuario) {
+  <div class="modal-overlay" (click)="cancelarEliminar()">
+    <div class="modal modal-confirm" (click)="$event.stopPropagation()">
+      <h2>¿Eliminar usuario?</h2>
+      <p>{{ usuario.name }} ({{ usuario.email }}) perderá el acceso a la plataforma.</p>
+      <div class="modal-actions">
+        <button type="button" class="btn-danger" [disabled]="eliminando()" (click)="eliminar()">
+          @if (eliminando()) {
+            Eliminando…
+          } @else {
+            Eliminar
+          }
+        </button>
+        <button type="button" class="btn-secondary" [disabled]="eliminando()" (click)="cancelarEliminar()">Cancelar</button>
+      </div>
+    </div>
+  </div>
+}

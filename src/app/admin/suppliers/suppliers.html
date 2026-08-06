@@ -1,0 +1,155 @@
+<div class="page-header">
+  <div>
+    <h1>Proveedores</h1>
+    <p class="page-sub">Empresas que surten la materia prima para la producción Zigo.</p>
+  </div>
+  <button type="button" class="btn-primary" (click)="abrirCrear()">Nuevo proveedor</button>
+</div>
+
+@if (errorAccion()) {
+  <p class="banner-error" role="alert">{{ errorAccion() }}</p>
+}
+
+@if (cargando()) {
+  <div class="card" aria-hidden="true">
+    @for (i of skeletons; track i) {
+      <div class="skeleton-row shimmer"></div>
+    }
+  </div>
+} @else if (error()) {
+  <div class="state-block" role="alert">
+    <span class="material-icons">error_outline</span>
+    <p>{{ error() }}</p>
+    <button type="button" class="btn-secondary" (click)="cargar()">Reintentar</button>
+  </div>
+} @else if (proveedores().length === 0) {
+  <div class="state-block">
+    <span class="material-icons">local_shipping</span>
+    <h2>Sin proveedores registrados</h2>
+    <p>Registra a tus proveedores para poder capturar compras de materia prima.</p>
+    <button type="button" class="btn-primary" (click)="abrirCrear()">Nuevo proveedor</button>
+  </div>
+} @else {
+  <div class="card table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Proveedor</th>
+          <th>Contacto</th>
+          <th>Teléfono</th>
+          <th>Correo</th>
+          <th class="th-actions">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (proveedor of proveedores(); track proveedor.id) {
+          <tr>
+            <td>
+              <div class="cell-nombre">
+                <span>{{ proveedor.nombre }}</span>
+                @if (proveedor.direccion) {
+                  <span class="cell-sub">{{ proveedor.direccion }}</span>
+                }
+              </div>
+            </td>
+            <td>{{ proveedor.contacto || '—' }}</td>
+            <td>{{ proveedor.telefono || '—' }}</td>
+            <td>{{ proveedor.email || '—' }}</td>
+            <td class="td-actions">
+              <button
+                type="button"
+                class="icon-btn"
+                [attr.aria-label]="'Editar ' + proveedor.nombre"
+                (click)="abrirEditar(proveedor)">
+                <span class="material-icons">edit</span>
+              </button>
+              <button
+                type="button"
+                class="icon-btn is-danger"
+                [attr.aria-label]="'Eliminar ' + proveedor.nombre"
+                (click)="pedirEliminar(proveedor)">
+                <span class="material-icons">delete_outline</span>
+              </button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+}
+
+@if (mostrandoForm()) {
+  <div class="modal-overlay" (click)="cerrarForm()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <h2>{{ proveedorEnEdicion() ? 'Editar proveedor' : 'Nuevo proveedor' }}</h2>
+
+      <form [formGroup]="form" (ngSubmit)="guardar()">
+        <div class="field">
+          <label for="proveedor-nombre">Nombre de la empresa</label>
+          <input id="proveedor-nombre" type="text" formControlName="nombre" placeholder="Electrónica del Valle S.A." />
+          @if (form.controls.nombre.touched && form.controls.nombre.invalid) {
+            <span class="field-error">Escribe el nombre del proveedor.</span>
+          }
+        </div>
+
+        <div class="field-grid">
+          <div class="field">
+            <label for="proveedor-contacto">Persona de contacto</label>
+            <input id="proveedor-contacto" type="text" formControlName="contacto" placeholder="Nombre del vendedor" />
+          </div>
+          <div class="field">
+            <label for="proveedor-telefono">Teléfono</label>
+            <input id="proveedor-telefono" type="tel" formControlName="telefono" placeholder="55 1234 5678" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="proveedor-email">Correo</label>
+          <input id="proveedor-email" type="email" formControlName="email" placeholder="ventas@proveedor.com" />
+          @if (form.controls.email.touched && form.controls.email.invalid) {
+            <span class="field-error">Escribe un correo válido.</span>
+          }
+        </div>
+
+        <div class="field">
+          <label for="proveedor-direccion">Dirección (opcional)</label>
+          <input id="proveedor-direccion" type="text" formControlName="direccion" placeholder="Calle, colonia, ciudad" />
+        </div>
+
+        @if (errorGuardar()) {
+          <p class="banner-error" role="alert">{{ errorGuardar() }}</p>
+        }
+
+        <div class="modal-actions">
+          <button type="submit" class="btn-primary" [disabled]="guardando()">
+            @if (guardando()) {
+              Guardando…
+            } @else {
+              {{ proveedorEnEdicion() ? 'Guardar cambios' : 'Crear proveedor' }}
+            }
+          </button>
+          <button type="button" class="btn-secondary" [disabled]="guardando()" (click)="cerrarForm()">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
+
+@if (proveedorAEliminar(); as proveedor) {
+  <div class="modal-overlay" (click)="cancelarEliminar()">
+    <div class="modal modal-confirm" (click)="$event.stopPropagation()">
+      <h2>¿Eliminar proveedor?</h2>
+      <p>"{{ proveedor.nombre }}" se eliminará del catálogo de proveedores.</p>
+      <div class="modal-actions">
+        <button type="button" class="btn-danger" [disabled]="eliminando()" (click)="eliminar()">
+          @if (eliminando()) {
+            Eliminando…
+          } @else {
+            Eliminar
+          }
+        </button>
+        <button type="button" class="btn-secondary" [disabled]="eliminando()" (click)="cancelarEliminar()">Cancelar</button>
+      </div>
+    </div>
+  </div>
+}
