@@ -410,6 +410,64 @@ tr:last-child td {
   &:hover {
     background: #f0f7ea;
   }
+
+  &.is-danger {
+    color: $danger;
+
+    &:hover {
+      background: $danger-soft;
+    }
+  }
+}
+
+.precio-box {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 0.75rem;
+  background: #f0f7ea;
+  border: 1px solid $accent;
+  border-radius: 12px;
+  padding: 0.9rem 1.1rem;
+  margin-bottom: 1.1rem;
+
+  > .material-icons {
+    color: #6a8f4a;
+    font-size: 20px;
+  }
+
+  .precio-box-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+
+    span {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: $muted;
+    }
+
+    strong {
+      font-size: 18px;
+      color: $ink;
+    }
+  }
+}
+
+.imagen-preview {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  img {
+    max-width: 200px;
+    max-height: 150px;
+    border-radius: 10px;
+    border: 1px solid $card-border;
+    object-fit: cover;
+  }
 }
 
 .sub-nota {

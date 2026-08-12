@@ -35,9 +35,9 @@ export class Products implements OnInit {
   form = new FormGroup({
     nombre: new FormControl('', [Validators.required, Validators.minLength(2)]),
     descripcion: new FormControl(''),
-    precio: new FormControl<number | null>(null, [Validators.required, Validators.min(0.01)]),
+    porcentajeUtilidad: new FormControl<number | null>(20, [Validators.required, Validators.min(0)]),
     stock: new FormControl<number | null>(null, [Validators.required, Validators.min(0)]),
-    imagenUrl: new FormControl(''),
+    imagenBase64: new FormControl<string | null>(null),
     receta: new FormArray<FormGroup>([]),
     documentos: new FormArray<FormGroup>([]),
   });
@@ -77,7 +77,7 @@ export class Products implements OnInit {
 
   abrirCrear() {
     this.productoEnEdicion.set(null);
-    this.form.reset({ nombre: '', descripcion: '', precio: null, stock: null, imagenUrl: '' });
+    this.form.reset({ nombre: '', descripcion: '', porcentajeUtilidad: 20, stock: null, imagenBase64: null });
     this.receta.clear();
     this.documentos.clear();
     this.errorGuardar.set(null);
@@ -86,23 +86,30 @@ export class Products implements OnInit {
 
   abrirEditar(producto: Producto) {
     this.productoEnEdicion.set(producto);
-    this.form.reset({
-      nombre: producto.nombre,
-      descripcion: producto.descripcion,
-      precio: producto.precio,
-      stock: producto.stock,
-      imagenUrl: producto.imagenUrl ?? '',
+    this.api.getProducto(producto.id).subscribe({
+      next: detalle => {
+        this.form.reset({
+          nombre: detalle.nombre,
+          descripcion: detalle.descripcion,
+          porcentajeUtilidad: detalle.porcentajeUtilidad,
+          stock: detalle.stock,
+          imagenBase64: detalle.imagenBase64 ?? null,
+        });
+        this.receta.clear();
+        for (const item of detalle.receta ?? []) {
+          this.receta.push(this.filaReceta(item.materiaPrimaId, item.cantidad));
+        }
+        this.documentos.clear();
+        for (const documento of detalle.documentos ?? []) {
+          this.documentos.push(this.filaDocumento(documento.titulo, documento.url));
+        }
+        this.errorGuardar.set(null);
+        this.mostrandoForm.set(true);
+      },
+      error: () => {
+        this.errorGuardar.set('No se pudo cargar el detalle del producto.');
+      },
     });
-    this.receta.clear();
-    for (const item of producto.receta ?? []) {
-      this.receta.push(this.filaReceta(item.materiaPrimaId, item.cantidad));
-    }
-    this.documentos.clear();
-    for (const documento of producto.documentos ?? []) {
-      this.documentos.push(this.filaDocumento(documento.titulo, documento.url));
-    }
-    this.errorGuardar.set(null);
-    this.mostrandoForm.set(true);
   }
 
   cerrarForm() {
@@ -136,6 +143,12 @@ export class Products implements OnInit {
     }, 0);
   }
 
+  precioFinalCalculado(): number {
+    const costo = this.costoEstimado();
+    const utilidad = Number(this.form.controls.porcentajeUtilidad?.value) || 0;
+    return costo * (1 + utilidad / 100);
+  }
+
   guardar() {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
@@ -146,9 +159,9 @@ export class Products implements OnInit {
     const data: GuardarProductoDto = {
       nombre: valores.nombre!.trim(),
       descripcion: valores.descripcion?.trim() ?? '',
-      precio: Number(valores.precio),
+      porcentajeUtilidad: Number(valores.porcentajeUtilidad),
       stock: Number(valores.stock),
-      imagenUrl: valores.imagenUrl?.trim() ? valores.imagenUrl.trim() : null,
+      imagenBase64: valores.imagenBase64?.trim() ? valores.imagenBase64.trim() : null,
       receta: this.receta.controls
         .filter(fila => fila.get('materiaPrimaId')?.value)
         .map(fila => ({
@@ -229,5 +242,22 @@ export class Products implements OnInit {
       titulo: new FormControl(titulo),
       url: new FormControl(url),
     });
+  }
+
+  onImagenSeleccionada(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const archivo = input.files?.[0];
+    if (!archivo) {
+      return;
+    }
+    const lector = new FileReader();
+    lector.onload = () => {
+      this.form.controls.imagenBase64.setValue(String(lector.result));
+    };
+    lector.readAsDataURL(archivo);
+  }
+
+  quitarImagen(): void {
+    this.form.controls.imagenBase64.setValue(null);
   }
 }

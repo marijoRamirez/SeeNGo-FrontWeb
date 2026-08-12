@@ -19,7 +19,6 @@ export class AdminLayout {
     { route: '/admin/suppliers', label: 'Proveedores', icon: 'local_shipping' },
     { route: '/admin/supplier-purchases', label: 'Compras', icon: 'shopping_basket' },
     { route: '/admin/comments', label: 'Comentarios', icon: 'rate_review' },
-    { route: '/admin/raspberry-monitor', label: 'Monitor Raspberry', icon: 'monitor_heart' },
     { route: '/', label: 'Regresar', icon: 'logout' }
   ];
 }

@@ -35,6 +35,7 @@
       <thead>
         <tr>
           <th>Producto</th>
+          <th>Costo</th>
           <th>Precio</th>
           <th>Stock</th>
           <th class="th-actions">Acciones</th>
@@ -49,7 +50,8 @@
                 <span class="cell-desc">{{ producto.descripcion }}</span>
               </div>
             </td>
-            <td class="td-price">{{ producto.precio | currency:'MXN':'symbol-narrow' }}</td>
+            <td class="td-price">{{ producto.precioBruto | currency:'MXN':'symbol-narrow' }}</td>
+            <td class="td-price">{{ producto.precioFinal | currency:'MXN':'symbol-narrow' }}</td>
             <td>
               @if (producto.stock === 0) {
                 <span class="stock-badge is-agotado">Agotado</span>
@@ -103,10 +105,10 @@
 
         <div class="field-grid">
           <div class="field">
-            <label for="producto-precio">Precio (MXN)</label>
-            <input id="producto-precio" type="number" step="0.01" min="0" formControlName="precio" placeholder="1250.50" />
-            @if (form.controls.precio.touched && form.controls.precio.invalid) {
-              <span class="field-error">El precio debe ser mayor a cero.</span>
+            <label for="producto-utilidad">Margen de utilidad (%)</label>
+            <input id="producto-utilidad" type="number" step="0.1" min="0" formControlName="porcentajeUtilidad" placeholder="20" />
+            @if (form.controls.porcentajeUtilidad.touched && form.controls.porcentajeUtilidad.invalid) {
+              <span class="field-error">El margen no puede ser negativo.</span>
             }
           </div>
 
@@ -119,9 +121,31 @@
           </div>
         </div>
 
+        <div class="precio-box">
+          <div class="precio-box-item">
+            <span>Costo de materiales</span>
+            <strong>{{ costoEstimado() | currency:'MXN':'symbol-narrow' }}</strong>
+          </div>
+          <span class="material-icons">trending_up</span>
+          <div class="precio-box-item">
+            <span>Precio de venta</span>
+            <strong>{{ precioFinalCalculado() | currency:'MXN':'symbol-narrow' }}</strong>
+          </div>
+        </div>
+
         <div class="field">
-          <label for="producto-imagen">URL de imagen (opcional)</label>
-          <input id="producto-imagen" type="url" formControlName="imagenUrl" placeholder="https://…" />
+          <label for="producto-imagen">Imagen del producto</label>
+          @if (form.controls.imagenBase64.value; as imagen) {
+            <div class="imagen-preview">
+              <img [src]="imagen" [alt]="'Vista previa de ' + (form.controls.nombre.value ?? 'producto')" />
+              <button type="button" class="btn-mini is-danger" (click)="quitarImagen()">
+                <span class="material-icons">delete_outline</span>
+                Quitar imagen
+              </button>
+            </div>
+          } @else {
+            <input id="producto-imagen" type="file" accept="image/*" (change)="onImagenSeleccionada($event)" />
+          }
         </div>
 
         <div class="sub-seccion">
@@ -151,7 +175,7 @@
                 </div>
               }
             </div>
-            <p class="costo-estimado">Costo estimado de materiales: <strong>{{ costoEstimado() | currency:'MXN':'symbol-narrow' }}</strong> (según costo promedio vigente)</p>
+            <p class="costo-estimado">El precio se calcula automáticamente con los costos de materiales. Utilidad por unidad: <strong>{{ precioFinalCalculado() - costoEstimado() | currency:'MXN':'symbol-narrow' }}</strong></p>
           }
         </div>
 

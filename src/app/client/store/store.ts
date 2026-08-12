@@ -42,6 +42,7 @@ export class Store implements OnInit {
     this.api.getProductos().subscribe({
       next: productos => {
         this.productos.set(productos);
+        this.precargarImagenes(productos);
         this.cargando.set(false);
       },
       error: () => {
@@ -49,6 +50,24 @@ export class Store implements OnInit {
         this.cargando.set(false);
       },
     });
+  }
+
+  private precargarImagenes(productos: Producto[]) {
+    for (const producto of productos) {
+      if (!producto.tieneImagen) {
+        continue;
+      }
+      this.api.getProducto(producto.id).subscribe({
+        next: detalle => {
+          if (detalle.imagenBase64) {
+            this.productos.update(lista =>
+              lista.map(p => (p.id === producto.id ? { ...p, imagenBase64: detalle.imagenBase64 } : p))
+            );
+          }
+        },
+        error: () => {},
+      });
+    }
   }
 
   cantidadEnCarrito(productoId: string): number {

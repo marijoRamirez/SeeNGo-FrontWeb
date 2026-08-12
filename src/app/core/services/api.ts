@@ -40,6 +40,8 @@ export interface RecetaItem {
   nombre: string;
   unidad: string;
   cantidad: number;
+  costoUnitario: number;
+  subtotal: number;
 }
 
 export interface DocumentoProducto {
@@ -51,9 +53,12 @@ export interface Producto {
   id: string;
   nombre: string;
   descripcion: string;
-  precio: number;
+  porcentajeUtilidad: number;
+  precioBruto: number;
+  precioFinal: number;
   stock: number;
-  imagenUrl: string | null;
+  tieneImagen: boolean;
+  imagenBase64?: string | null;
   receta: RecetaItem[];
   documentos: DocumentoProducto[];
   createdAt: string;
@@ -82,9 +87,9 @@ export interface NuevaVentaItem {
 export interface GuardarProductoDto {
   nombre: string;
   descripcion: string;
-  precio: number;
+  porcentajeUtilidad: number;
   stock: number;
-  imagenUrl: string | null;
+  imagenBase64: string | null;
   receta: { materiaPrimaId: string; cantidad: number }[];
   documentos: { titulo: string; url: string }[];
 }
@@ -214,6 +219,40 @@ export interface AvanceProduccion {
   notas: string | null;
 }
 
+export interface AdminMetrics {
+  totalUsers: number;
+  totalDevices: number;
+  activeRoutines: number;
+  onlineDevices: number;
+  generatedAt: string;
+}
+
+export interface MonitorRaspberry {
+  id: string;
+  userId: string;
+  name: string;
+  localIp: string;
+  contact: string;
+  status: 'Online' | 'Offline';
+  cpuUsage: number;
+  ramUsage: number;
+  storageUsage: number;
+  uptime: string;
+  lastSeen: string;
+}
+
+export interface DeviceUsage {
+  dates: string[];
+  frequencies: number[];
+  kwhData: number[];
+  hours: string[];
+  hourlyFrequencies: number[];
+  deviceTypes: { name: string; count: number }[];
+  totalSessions: number;
+  totalEvents: number;
+  period: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class ApiService {
   private http = inject(HttpClient);
@@ -245,6 +284,10 @@ export class ApiService {
 
   getProductos(): Observable<Producto[]> {
     return this.http.get<Producto[]>(`${this.baseUrl}/productos`);
+  }
+
+  getProducto(id: string): Observable<Producto> {
+    return this.http.get<Producto>(`${this.baseUrl}/productos/${id}`);
   }
 
   crearVenta(items: NuevaVentaItem[]): Observable<Venta> {
@@ -372,6 +415,22 @@ export class ApiService {
     return this.http.get<{ total: number; page: number; limit: number; data: UsuarioAdmin[] }>(
       `${this.baseUrl}/admin/users?page=${page ?? 1}&limit=${limit ?? 50}`
     );
+  }
+
+  getAdminMetrics(): Observable<AdminMetrics> {
+    return this.http.get<AdminMetrics>(`${this.baseUrl}/admin/dashboard/metrics`);
+  }
+
+  getTodasVentas(): Observable<Venta[]> {
+    return this.http.get<Venta[]>(`${this.baseUrl}/ventas`);
+  }
+
+  getMonitorRaspberries(): Observable<MonitorRaspberry[]> {
+    return this.http.get<MonitorRaspberry[]>(`${this.baseUrl}/monitor/raspberries`);
+  }
+
+  getDeviceUsage(period?: string): Observable<DeviceUsage> {
+    return this.http.get<DeviceUsage>(`${this.baseUrl}/analytics/device-usage${period ? `?period=${period}` : ''}`);
   }
 
   crearUsuarioAdmin(data: { name: string; email: string; role: string }): Observable<UsuarioCreado> {

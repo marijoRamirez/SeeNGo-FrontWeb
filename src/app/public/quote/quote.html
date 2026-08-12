@@ -110,7 +110,7 @@
                     <select [id]="'quote-producto-' + i" formControlName="productoId">
                       <option value="" disabled>Selecciona un producto</option>
                       @for (producto of productos(); track producto.id) {
-                        <option [value]="producto.id">{{ producto.nombre }} — {{ producto.precio | currency:'MXN':'symbol-narrow' }}</option>
+                        <option [value]="producto.id">{{ producto.nombre }} — {{ producto.precioFinal | currency:'MXN':'symbol-narrow' }}</option>
                       }
                     </select>
                   </div>

@@ -19,7 +19,7 @@ export class CartService {
   );
 
   readonly total = computed(() =>
-    this.itemsSignal().reduce((suma, item) => suma + item.cantidad * item.producto.precio, 0)
+    this.itemsSignal().reduce((suma, item) => suma + item.cantidad * item.producto.precioFinal, 0)
   );
 
   agregar(producto: Producto): void {
@@ -67,7 +67,11 @@ export class CartService {
     }
     try {
       const guardado = localStorage.getItem(CART_STORAGE_KEY);
-      return guardado ? JSON.parse(guardado) : [];
+      if (!guardado) {
+        return [];
+      }
+      const items: CartItem[] = JSON.parse(guardado);
+      return items.filter(item => typeof item.producto?.precioFinal === 'number');
     } catch {
       return [];
     }

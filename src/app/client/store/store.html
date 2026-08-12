@@ -31,8 +31,8 @@
         @for (producto of productos(); track producto.id) {
           <article class="product-card">
             <div class="product-media">
-              @if (producto.imagenUrl) {
-                <img [src]="producto.imagenUrl" [alt]="producto.nombre" loading="lazy" />
+              @if (producto.imagenBase64) {
+                <img [src]="producto.imagenBase64" [alt]="producto.nombre" loading="lazy" />
               } @else {
                 <span class="material-icons" aria-hidden="true">memory</span>
               }
@@ -41,7 +41,7 @@
               <h2>{{ producto.nombre }}</h2>
               <p class="product-desc">{{ producto.descripcion }}</p>
               <div class="product-meta">
-                <span class="product-price">{{ producto.precio | currency:'MXN':'symbol-narrow' }}</span>
+                <span class="product-price">{{ producto.precioFinal | currency:'MXN':'symbol-narrow' }}</span>
                 @if (producto.stock === 0) {
                   <span class="stock-badge is-agotado">Agotado</span>
                 } @else if (producto.stock <= 3) {
@@ -120,7 +120,7 @@
                     (click)="cart.cambiarCantidad(item.producto.id, item.cantidad + 1)">+</button>
                 </div>
                 <span class="cart-item-subtotal">
-                  {{ item.cantidad * item.producto.precio | currency:'MXN':'symbol-narrow' }}
+                  {{ item.cantidad * item.producto.precioFinal | currency:'MXN':'symbol-narrow' }}
                 </span>
               </div>
             </li>

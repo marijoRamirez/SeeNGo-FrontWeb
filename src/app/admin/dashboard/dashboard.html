@@ -1,51 +1,248 @@
-<div class="welcome-section">
+<div class="page-header">
   <div>
     <h1>Panel de administración</h1>
-    <p class="welcome-sub">Gestiona los dispositivos, usuarios y rutinas de SeeNGo.</p>
+    <p class="page-sub">Resumen operativo de SeeNGo: ventas, catálogo, clientes y comentarios.</p>
   </div>
+  <button type="button" class="btn-secondary" [disabled]="cargando()" (click)="cargar()">
+    <span class="material-icons">refresh</span>
+    Actualizar
+  </button>
 </div>
 
-<div class="cards-metrics">
-  <div class="card-metric">
-    <div class="metric-icon users">
+@if (cargando()) {
+  <div class="skeleton-grid" aria-hidden="true">
+    @for (i of skeletons; track i) {
+      <div class="card skeleton-row shimmer"></div>
+    }
+  </div>
+} @else if (error()) {
+  <div class="state-block" role="alert">
+    <span class="material-icons">error_outline</span>
+    <p>{{ error() }}</p>
+    <button type="button" class="btn-primary" (click)="cargar()">Reintentar</button>
+  </div>
+} @else {
+  @if (metricas(); as m) {
+    <div class="cards-metrics">
+      <div class="card-metric">
+        <div class="metric-icon users"><span class="material-icons">group</span></div>
+        <div class="metric-body">
+          <span class="metric-value">{{ m.totalUsers }}</span>
+          <span class="metric-label">Usuarios</span>
+        </div>
+      </div>
+
+      <div class="card-metric">
+        <div class="metric-icon sales"><span class="material-icons">point_of_sale</span></div>
+        <div class="metric-body">
+          <span class="metric-value">{{ totalVentas() }}</span>
+          <span class="metric-label">Ventas</span>
+        </div>
+      </div>
+
+      <div class="card-metric">
+        <div class="metric-icon revenue"><span class="material-icons">payments</span></div>
+        <div class="metric-body">
+          <span class="metric-value">{{ ingresos() | currency:'MXN':'symbol-narrow' }}</span>
+          <span class="metric-label">Ingresos</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="cards-metrics">
+      <div class="card-metric">
+        <div class="metric-icon review"><span class="material-icons">rate_review</span></div>
+        <div class="metric-body">
+          <span class="metric-value">{{ resenasPendientes() }}</span>
+          <span class="metric-label">Reseñas pendientes</span>
+        </div>
+        <a class="metric-link" routerLink="/admin/comments">Revisar</a>
+      </div>
+
+      <div class="card-metric">
+        <div class="metric-icon inbox"><span class="material-icons">forward_to_inbox</span></div>
+        <div class="metric-body">
+          <span class="metric-value">{{ mensajesSinAtender() }}</span>
+          <span class="metric-label">Mensajes sin atender</span>
+        </div>
+      </div>
+
+      <div class="card-metric">
+        <div class="metric-icon quote"><span class="material-icons">request_quote</span></div>
+        <div class="metric-body">
+          <span class="metric-value">{{ cotizacionesPendientes() }}</span>
+          <span class="metric-label">Cotizaciones</span>
+        </div>
+      </div>
+    </div>
+  }
+
+
+  <div class="grid-2">
+    <div class="card list-card">
+      <div class="card-head">
+        <h2>Últimas ventas</h2>
+        <span class="card-head-sub">{{ totalVentas() }} órdenes · {{ ingresos() | currency:'MXN':'symbol-narrow' }}</span>
+      </div>
+      @if (ultimasVentas().length === 0) {
+        <p class="list-empty">Aún no hay ventas registradas.</p>
+      } @else {
+        <ul class="plain-list">
+          @for (venta of ultimasVentas(); track venta.id) {
+            <li>
+              <div class="list-main">
+                <span class="list-title">#{{ venta.id.slice(-6) | uppercase }}</span>
+                <span class="list-desc">
+                  {{ venta.items.length }} producto{{ venta.items.length === 1 ? '' : 's' }}
+                </span>
+              </div>
+              <div class="list-side">
+                <span class="list-amount">{{ venta.total | currency:'MXN':'symbol-narrow' }}</span>
+                <span class="list-date">{{ venta.fechaVenta | date:'d MMM y' }}</span>
+              </div>
+            </li>
+          }
+        </ul>
+      }
+    </div>
+
+    <div class="card list-card">
+      <div class="card-head">
+        <h2>Stock bajo / agotado</h2>
+        <span class="card-head-sub">productos con menor existencia</span>
+      </div>
+      @if (productosBajoStock().length === 0) {
+        <p class="list-empty">No hay productos registrados.</p>
+      } @else {
+        <ul class="plain-list">
+          @for (producto of productosBajoStock(); track producto.id) {
+            <li>
+              <div class="list-main">
+                <span class="list-title">{{ producto.nombre }}</span>
+                <span class="list-desc">{{ producto.precioFinal | currency:'MXN':'symbol-narrow' }}</span>
+              </div>
+              <div class="list-side">
+                @if (producto.stock === 0) {
+                  <span class="stock-badge is-agotado">Agotado</span>
+                } @else if (producto.stock <= 3) {
+                  <span class="stock-badge is-bajo">{{ producto.stock }}</span>
+                } @else {
+                  <span class="stock-badge">{{ producto.stock }}</span>
+                }
+              </div>
+            </li>
+          }
+        </ul>
+        <a class="list-footer" routerLink="/admin/products">Gestionar catálogo</a>
+      }
+    </div>
+  </div>
+
+  <div class="grid-3">
+    <div class="card list-card">
+      <div class="card-head">
+        <h2>Reseñas recientes</h2>
+        <a class="card-link" routerLink="/admin/comments">Ver todas</a>
+      </div>
+      @if (resenasRecientes().length === 0) {
+        <p class="list-empty">Sin reseñas por moderar.</p>
+      } @else {
+        <ul class="plain-list">
+          @for (resena of resenasRecientes(); track resena.id) {
+            <li>
+              <div class="list-main">
+                <span class="list-title">{{ resena.userName }}</span>
+                <span class="list-desc">{{ resena.comentario }}</span>
+              </div>
+              <div class="list-side">
+                <span class="stars">★ {{ resena.calificacion }}</span>
+                @if (resena.estado === 'pendiente') {
+                  <span class="status-badge is-pending">Pendiente</span>
+                } @else {
+                  <span class="status-badge is-done">Atendida</span>
+                }
+              </div>
+            </li>
+          }
+        </ul>
+      }
+    </div>
+
+    <div class="card list-card">
+      <div class="card-head">
+        <h2>Contacto sin atender</h2>
+        <span class="card-head-sub">{{ mensajesSinAtender() }} mensajes</span>
+      </div>
+      @if (mensajesRecientes().length === 0) {
+        <p class="list-empty">Bandeja de contacto vacía.</p>
+      } @else {
+        <ul class="plain-list">
+          @for (mensaje of mensajesRecientes(); track mensaje.id) {
+            <li>
+              <div class="list-main">
+                <span class="list-title">{{ mensaje.nombre }}</span>
+                <span class="list-desc">{{ mensaje.mensaje }}</span>
+              </div>
+              <div class="list-side">
+                @if (mensaje.atendido) {
+                  <span class="status-badge is-done">Atendido</span>
+                } @else {
+                  <span class="status-badge is-pending">Pendiente</span>
+                }
+              </div>
+            </li>
+          }
+        </ul>
+      }
+    </div>
+
+    <div class="card list-card">
+      <div class="card-head">
+        <h2>Últimas cotizaciones</h2>
+        <span class="card-head-sub">{{ cotizacionesPendientes() }} solicitudes</span>
+      </div>
+      @if (cotizaciones().length === 0) {
+        <p class="list-empty">Sin cotizaciones.</p>
+      } @else {
+        <ul class="plain-list">
+          @for (cotizacion of cotizaciones().slice(0, 5); track cotizacion.id) {
+            <li>
+              <div class="list-main">
+                <span class="list-title">{{ cotizacion.nombre }}</span>
+                <span class="list-desc">{{ cotizacion.tipoPropiedad }} · {{ cotizacion.items.length }} producto{{ cotizacion.items.length === 1 ? '' : 's' }}</span>
+              </div>
+              <div class="list-side">
+                <span class="list-amount">{{ cotizacion.total | currency:'MXN':'symbol-narrow' }}</span>
+                <span class="list-date">{{ cotizacion.createdAt | date:'d MMM y' }}</span>
+              </div>
+            </li>
+          }
+        </ul>
+      }
+    </div>
+  </div>
+
+  <h2 class="section-title">Accesos rápidos</h2>
+  <div class="quick-actions">
+    <a class="action-btn" routerLink="/admin/users">
       <span class="material-icons">group</span>
-    </div>
-    <div class="metric-body">
-      <span class="metric-value">{{ usuariosActivos }}</span>
-      <span class="metric-label">Usuarios activos</span>
-    </div>
+      <span>Usuarios</span>
+    </a>
+    <a class="action-btn" routerLink="/admin/products">
+      <span class="material-icons">inventory_2</span>
+      <span>Productos</span>
+    </a>
+    <a class="action-btn" routerLink="/admin/production">
+      <span class="material-icons">precision_manufacturing</span>
+      <span>Producción</span>
+    </a>
+    <a class="action-btn" routerLink="/admin/raw-materials">
+      <span class="material-icons">category</span>
+      <span>Materia prima</span>
+    </a>
+    <a class="action-btn" routerLink="/admin/comments">
+      <span class="material-icons">rate_review</span>
+      <span>Comentarios</span>
+    </a>
   </div>
-
-  <div class="card-metric">
-    <div class="metric-icon devices">
-      <span class="material-icons">devices_other</span>
-    </div>
-    <div class="metric-body">
-      <span class="metric-value">{{ dispositivosRegistrados }}</span>
-      <span class="metric-label">Dispositivos registrados</span>
-    </div>
-  </div>
-
-  <div class="card-metric">
-    <div class="metric-icon alerts">
-      <span class="material-icons">notifications</span>
-    </div>
-    <div class="metric-body">
-      <span class="metric-value">{{ alertasPendientes }}</span>
-      <span class="metric-label">Alertas pendientes</span>
-    </div>
-  </div>
-</div>
-
-<h2 class="section-title">Acciones rápidas</h2>
-<div class="quick-actions">
-  <a class="action-btn">
-    <span class="material-icons">visibility</span>
-    <span>Ver dispositivo</span>
-  </a>
-  <a class="action-btn">
-    <span class="material-icons">analytics</span>
-    <span>Ver reportes</span>
-  </a>
-</div>
-
+}
