@@ -1,0 +1,307 @@
+$ink: #1e2624;
+$muted: #7a837f;
+$card-border: #e8ece8;
+$accent: #d4e8c2;
+$accent-soft: #f0f7ea;
+$accent-deep: #a8d08d;
+$accent-text: #57705f;
+
+:host {
+  display: block;
+}
+
+.documentation-content {
+  font-family: Roboto, sans-serif;
+  color: $ink;
+}
+
+.doc-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  background: linear-gradient(115deg, #ffffff 30%, $accent-soft 100%);
+  border: 1px solid $card-border;
+  border-radius: 18px;
+  padding: 2rem 2.25rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 10px 30px rgba(30, 38, 36, 0.06);
+}
+
+.doc-header-text {
+  flex: 1;
+  min-width: 240px;
+}
+
+.doc-eyebrow {
+  display: inline-block;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: $accent-text;
+  background: #fff;
+  border: 1px solid rgba(168, 208, 141, 0.5);
+  padding: 4px 12px;
+  border-radius: 999px;
+  margin-bottom: 0.9rem;
+}
+
+.doc-title {
+  font-size: 30px;
+  font-weight: 600;
+  margin: 0 0 10px;
+  letter-spacing: -0.015em;
+}
+
+.doc-sub {
+  font-size: 15px;
+  color: $muted;
+  line-height: 1.65;
+  margin: 0;
+  max-width: 620px;
+}
+
+.btn-download {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 22px;
+  border-radius: 12px;
+  background: $ink;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  box-shadow: 0 6px 20px rgba(30, 38, 36, 0.16);
+  transition: transform 0.15s, box-shadow 0.25s, background 0.25s;
+  flex-shrink: 0;
+
+  .material-icons {
+    font-size: 20px;
+  }
+
+  &:hover {
+    background: #2b3632;
+    box-shadow: 0 8px 26px rgba(30, 38, 36, 0.22);
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(1px);
+  }
+}
+
+.documentation-container {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.5rem;
+}
+
+.documentation-card {
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border: 1px solid $card-border;
+  border-radius: 16px;
+  padding: 1.4rem 1.6rem 1.6rem;
+  transition: border-color 0.25s, box-shadow 0.25s, transform 0.25s;
+
+  &:hover {
+    border-color: $accent-deep;
+    box-shadow: 0 12px 30px rgba(30, 38, 36, 0.08);
+    transform: translateY(-2px);
+  }
+
+  .doc-icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 13px;
+    background: linear-gradient(135deg, $accent-soft 0%, $accent 100%);
+    color: $ink;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    margin-bottom: 1.1rem;
+    align-self: flex-start;
+  }
+
+  h2 {
+    font-size: 17px;
+    font-weight: 600;
+    margin: 0 0 0.5rem;
+    letter-spacing: -0.01em;
+  }
+
+  > p {
+    font-size: 14px;
+    color: $muted;
+    line-height: 1.7;
+    margin: 0;
+  }
+
+  > p + p {
+    margin-top: 0.75rem;
+  }
+
+  ul,
+  ol {
+    margin: 0.9rem 0 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+  }
+
+  ul,
+  ol {
+    counter-reset: docstep;
+  }
+
+  li {
+    font-size: 14px;
+    color: $muted;
+    line-height: 1.65;
+    position: relative;
+    padding-left: 1.4rem;
+
+    strong {
+      color: $ink;
+      font-weight: 600;
+    }
+  }
+
+  ul li::before {
+    content: '•';
+    position: absolute;
+    left: 0;
+    top: 2px;
+    color: $accent-deep;
+    font-size: 18px;
+    line-height: 1;
+  }
+
+  ol li {
+    padding-left: 2.1rem;
+    min-height: 24px;
+  }
+
+  ol li::before {
+    counter-increment: docstep;
+    content: counter(docstep);
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 22px;
+    height: 22px;
+    border-radius: 7px;
+    background: $accent-soft;
+    border: 1px solid rgba(168, 208, 141, 0.55);
+    color: $accent-text;
+    font-size: 12px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+.doc-intro {
+  grid-column: 1 / -1;
+  background: linear-gradient(135deg, #ffffff 0%, $accent-soft 75%);
+  padding: 2rem 2.25rem;
+
+  .doc-icon {
+    width: 54px;
+    height: 54px;
+    border-radius: 15px;
+    font-size: 26px;
+    margin-bottom: 1.15rem;
+  }
+
+  h2 {
+    font-size: 21px;
+    margin-bottom: 0.65rem;
+  }
+
+  > p {
+    font-size: 15px;
+    max-width: 780px;
+  }
+}
+
+.is-wide {
+  grid-column: 1 / -1;
+}
+
+.faq-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.8rem;
+  margin-top: 0.6rem;
+}
+
+.faq-item {
+  border: 1px solid $card-border;
+  border-radius: 12px;
+  background: #fbfcfb;
+  padding: 1rem 1.15rem;
+  transition: border-color 0.2s, background 0.2s;
+
+  &:hover {
+    border-color: $accent;
+    background: #fff;
+  }
+
+  h3 {
+    font-size: 14.5px;
+    font-weight: 600;
+    color: $ink;
+    margin: 0 0 5px;
+  }
+
+  p {
+    font-size: 13.5px;
+    color: $muted;
+    line-height: 1.6;
+    margin: 0;
+  }
+}
+
+@media (max-width: 900px) {
+  .documentation-container {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .faq-list {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .doc-header {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 1.5rem 1.4rem;
+  }
+
+  .doc-title {
+    font-size: 23px;
+  }
+
+  .doc-intro {
+    padding: 1.5rem 1.4rem;
+  }
+
+  .documentation-card {
+    padding: 1.4rem;
+  }
+
+  .btn-download {
+    width: 100%;
+    justify-content: center;
+  }
+}

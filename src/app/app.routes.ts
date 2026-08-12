@@ -22,6 +22,7 @@ import { ClientLayout } from './client/layout/client-layout';
 import { Profile } from './client/profile/profile';
 import { Purchases } from './client/purchases/purchases';
 import { Store } from './client/store/store';
+import { Documentation } from './client/documentation/documentation';
 
 export const routes: Routes = [
   { path: '', component: Landing },
@@ -55,6 +56,7 @@ export const routes: Routes = [
       { path: 'store', component: Store },
       { path: 'purchases', component: Purchases },
       { path: 'profile', component: Profile },
+      { path: 'documentation', component: Documentation },
       { path: '**', redirectTo: 'store' },
     ],
   },

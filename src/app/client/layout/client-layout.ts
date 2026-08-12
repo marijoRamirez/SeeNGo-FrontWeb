@@ -15,6 +15,7 @@ export class ClientLayout {
     { route: '/client/store', label: 'Tienda', icon: 'storefront' },
     { route: '/client/purchases', label: 'Mis compras', icon: 'receipt_long' },
     { route: '/client/profile', label: 'Mi perfil', icon: 'person' },
+    { route: '/client/documentation', label: 'Documentación', icon: 'description' },
     { route: '/', label: 'Regresar', icon: 'logout' },
   ];
 }
