@@ -19,6 +19,7 @@ export class Landing implements OnInit {
 
   isLogged: boolean = false;
   showUserMenu: boolean = false;
+  userRole: string = '';
 
   readonly resenas = signal<Resena[]>([]);
   readonly estrellas = [1, 2, 3, 4, 5];
@@ -36,6 +37,10 @@ export class Landing implements OnInit {
   ngOnInit() {
     this.auth.isLoggedIn$.subscribe(logged => {
       this.isLogged = logged;
+    });
+
+    this.auth.user$.subscribe(user => {
+      this.userRole = user?.role ?? '';
     });
 
     if (isPlatformBrowser(this.platformId)) {

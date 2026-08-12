@@ -1,5 +1,7 @@
 import { Routes } from '@angular/router';
 
+import { authGuard, roleGuard } from './core/guards/auth.guard';
+
 import { Landing } from './public/landing/landing';
 import { Login } from './public/login/login';
 import { Register } from './public/register/register';
@@ -33,6 +35,7 @@ export const routes: Routes = [
   {
     path: 'admin',
     component: AdminLayout,
+    canActivate: [authGuard, roleGuard(['admin'])],
     children: [
       { path: 'dashboard', component: AdminDashboard },
       { path: 'users', component: Users },
@@ -52,6 +55,7 @@ export const routes: Routes = [
   {
     path: 'client',
     component: ClientLayout,
+    canActivate: [authGuard, roleGuard(['client'])],
     children: [
       { path: 'store', component: Store },
       { path: 'purchases', component: Purchases },
